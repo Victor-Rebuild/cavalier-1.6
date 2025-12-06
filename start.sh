@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # var (
 # 	SessionCertEnv = "SESSION_CERT_STORAGE"
 # 	HoundKeyEnv    = "HOUND_KEY"
@@ -9,6 +11,8 @@ if [[ ! -f source.sh ]]; then
     echo "source.sh must exist"
     exit 1
 fi
+
+export PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:$PKG_CONFIG_PATH
 
 source source.sh
 

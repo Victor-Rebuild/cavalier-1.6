@@ -209,5 +209,6 @@ func STT(req sr.SpeechRequest) (string, error) {
 	}
 	transcribedText := jres["text"].(string)
 	fmt.Println("Bot " + req.Device + " Transcribed text: " + transcribedText)
+	go rec.Reset()
 	return transcribedText, nil
 }
