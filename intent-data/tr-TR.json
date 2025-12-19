@@ -11,6 +11,10 @@
     "name": "intent_names_ask",
     "keyphrases": ["benim adım", "kimim", "ben kimim"]
   },
+  {	
+		"name": "intent_name_victor", 
+		"keyphrases" : ["your name", "you're name", "who are", "who are you", "whats your name", "what's your name"]
+	},
   {
     "name": "intent_imperative_eyecolor",
     "keyphrases": ["göz rengi", "renk", "onu çağırıyorum", "onu takip ediyorum", "irenk", "ekse", "eriye", "ikan", "agrikola", "değiştir", "oraküler", "oracle", "göz rengini şuna ayarla"]

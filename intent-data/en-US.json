@@ -15,6 +15,11 @@
 		"requiresexact": false
 	},
 	{	
+		"name": "intent_name_victor", 
+		"keyphrases" : ["your name", "you're name", "who are", "who are you", "whats your name", "what's your name"],
+		"requiresexact": false
+	},
+	{	
 		"name": "intent_imperative_eyecolor",
 		"keyphrases" : ["eye color", "colo", "i call her", "i foller", "icolor", "ecce", "erior", "ichor", "agricola", "change", "oracular", "oracle", "set your eye color to"],
 		"requiresexact": false

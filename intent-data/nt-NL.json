@@ -15,6 +15,11 @@
 		"requiresexact": false
 	},
 	{	
+		"name": "intent_name_victor", 
+		"keyphrases" : ["your name", "you're name", "who are", "who are you", "whats your name", "what's your name"],
+		"requiresexact": false
+	},
+	{	
 		"name": "intent_imperative_eyecolor",
 		"keyphrases" : ["ogen", "oogkleur", "boven", "maak je ogen", "boog", "boogkleur", "verander oogkleur naar", "oog meur"],
 		"requiresexact": false

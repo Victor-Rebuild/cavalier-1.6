@@ -11,6 +11,10 @@
     "name": "intent_names_ask",
     "keyphrases": ["jak mam na imię", "kim jestem", "kto jestem", "moje imię", "jak się nazywam"]
   },
+	{	
+		"name": "intent_name_victor", 
+		"keyphrases" : ["your name", "you're name", "who are", "who are you", "whats your name", "what's your name"]
+	},
   {
     "name": "intent_imperative_eyecolor",
     "keyphrases": ["kolor", "kolor oczu", "ustaw kolor oczu", "zmień kolor oczu", "ustaw kolor", "zmień kolor"]

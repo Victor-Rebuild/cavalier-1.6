@@ -12,6 +12,10 @@
 		"keyphrases" : ["quem sou eu", "qual o meu nome", "qual meu nome", "sou eu", "meu nome"]
 	},
 	{	
+		"name": "intent_name_victor", 
+		"keyphrases" : ["your name", "you're name", "who are", "who are you", "whats your name", "what's your name"]
+	},
+	{	
 		"name": "intent_imperative_eyecolor",
 		"keyphrases" : ["cor dos olhos", "trocar cor", "mudar cor","trocar cor dos olhos"]
 	},

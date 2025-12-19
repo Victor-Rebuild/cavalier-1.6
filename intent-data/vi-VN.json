@@ -11,6 +11,10 @@
         "name": "intent_names_ask",
         "keyphrases": ["Tên của tôi", "Tôi là", "Tôi là ai"]
     },
+	{	
+		"name": "intent_name_victor", 
+		"keyphrases" : ["your name", "you're name", "who are", "who are you", "whats your name", "what's your name"]
+	},
     {
         "name": "intent_imperative_eyecolor",
         "keyphrases": ["Màu mắt", "Màu sắc"]
