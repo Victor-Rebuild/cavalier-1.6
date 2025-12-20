@@ -15,6 +15,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"runtime"
 
 	stt "cavalier/pkg/vosk"
 
@@ -25,6 +26,10 @@ import (
 )
 
 func main() {
+
+	runtime.GOMAXPROCS(runtime.NumCPU())
+	fmt.Printf("Using %d CPU threads\n", runtime.NumCPU())
+
 	vars.Init()
 	dbConn, err := sql.Open("sqlite3", "./user_database.db")
 	if err != nil {

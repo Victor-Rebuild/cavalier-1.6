@@ -3,6 +3,8 @@ package audioproc
 import (
 	"fmt"
 	"math"
+	"runtime"
+	"sync"
 
 	"github.com/digital-dream-labs/opus-go/opus"
 	"github.com/maxhawkins/go-webrtcvad"
@@ -70,6 +72,9 @@ func (rawr *AudioProcessor) ProcessAudio(buf []byte) []byte {
 		}
 	}
 	frames := SplitIntoFrames(buf, 320)
+	if len(frames) > 4 {
+		return rawr.processFramesParallel(frames)
+	}
 	var output []byte
 	for _, frame := range frames {
 		active, err := rawr.vad.Process(16000, frame)
@@ -82,6 +87,44 @@ func (rawr *AudioProcessor) ProcessAudio(buf []byte) []byte {
 	}
 	rawr.pastFirstChunk = true
 	return output
+}
+
+func (rawr *AudioProcessor) processFramesParallel(frames [][]byte) []byte {
+	numWorkers := runtime.NumCPU()
+	output := make([][]byte, len(frames))
+
+	var wg sync.WaitGroup
+	workChan := make(chan int, len(frames))
+
+	for w := 0; w < numWorkers; w++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for i := range workChan {
+				frame := frames[i]
+				active, err := rawr.vad.Process(16000, frame)
+				if err != nil {
+					fmt.Println("webrtcvad Process() error (ProcessAudio):", err)
+				}
+				int16Data := bytesToInt16(frame)
+				processed := rawr.processInt16Chunk(int16Data, active)
+				output[i] = int16ToBytes(processed)
+			}
+		}()
+	}
+
+	for i := range frames {
+		workChan <- i
+	}
+	close(workChan)
+
+	wg.Wait()
+	var result []byte
+	for _, data := range output {
+		result = append(result, data...)
+	}
+	rawr.pastFirstChunk = true
+	return result
 }
 
 // do HP filter, RMS-based normalization, noise gate...

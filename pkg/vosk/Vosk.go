@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"runtime"
 	"sync"
 	"time"
 
@@ -69,24 +70,31 @@ func Init() error {
 	}
 	model = aModel
 
-	fmt.Println("Initializing VOSK recognizers")
+	numThreads := runtime.NumCPU()
+	fmt.Printf("Initializing %d VOSK recognizers for %d CPU threads\n", numThreads, numThreads)
 	if GrammerEnable {
-		grmRecognizer, err := vosk.NewRecognizerGrm(aModel, 16000.0, Grammer)
+		for i := 0; i < numThreads; i++ {
+			grmRecognizer, err := vosk.NewRecognizerGrm(aModel, 16000.0, Grammer)
+			if err != nil {
+				log.Fatal(err)
+			}
+			var grmrec ARec
+			grmrec.Rec = grmRecognizer
+			grmrec.InUse = false
+			grmRecs = append(grmRecs, grmrec)
+			fmt.Printf("Created grammer recognizer %d/%d\n", i+1, numThreads)
+		}
+	}
+	for i := 0; i < numThreads; i++ {
+		gpRecognizer, err := vosk.NewRecognizer(aModel, 16000.0)
 		if err != nil {
 			log.Fatal(err)
 		}
-		var grmrec ARec
-		grmrec.Rec = grmRecognizer
-		grmrec.InUse = false
-		grmRecs = append(grmRecs, grmrec)
-	}
-	gpRecognizer, err := vosk.NewRecognizer(aModel, 16000.0)
-	var gprec ARec
-	gprec.Rec = gpRecognizer
-	gprec.InUse = false
-	gpRecs = append(gpRecs, gprec)
-	if err != nil {
-		log.Fatal(err)
+		var gprec ARec
+		gprec.Rec = gpRecognizer
+		gprec.InUse = false
+		gpRecs = append(gpRecs, gprec)
+		fmt.Printf("Created general recognizer %d/%d\n", i+1, numThreads)
 	}
 	modelLoaded = true
 	fmt.Println("VOSK initiated successfully")
@@ -132,24 +140,30 @@ func runTest() {
 }
 
 func getRec(withGrm bool) (*vosk.VoskRecognizer, int) {
-	recsmu.Lock()
-	defer recsmu.Unlock()
-	if withGrm && GrammerEnable {
-		for ind, rec := range grmRecs {
-			if !rec.InUse {
-				grmRecs[ind].InUse = true
-				return grmRecs[ind].Rec, ind
+	for attempts := 0; attempts < 10; attempts++ {
+		recsmu.Lock()
+		if withGrm && GrammerEnable {
+			for ind, rec := range grmRecs {
+				if !rec.InUse {
+					grmRecs[ind].InUse = true
+					recsmu.Unlock()
+					return grmRecs[ind].Rec, ind
+				}
+			}
+		} else {
+			for ind, rec := range gpRecs {
+				if !rec.InUse {
+					gpRecs[ind].InUse = true
+					recsmu.Unlock()
+					return gpRecs[ind].Rec, ind
+				}
 			}
 		}
-	} else {
-		for ind, rec := range gpRecs {
-			if !rec.InUse {
-				gpRecs[ind].InUse = true
-				return gpRecs[ind].Rec, ind
-			}
-		}
+		recsmu.Unlock()
+		runtime.Gosched()
+		time.Sleep(10 * time.Millisecond)
 	}
-	recsmu.Unlock()
+	fmt.Println("All recognizers busy, creating temporary recognizer")
 	var newrec ARec
 	var newRec *vosk.VoskRecognizer
 	var err error
@@ -164,6 +178,7 @@ func getRec(withGrm bool) (*vosk.VoskRecognizer, int) {
 	}
 	newrec.Rec = newRec
 	recsmu.Lock()
+	defer recsmu.Unlock()
 	if withGrm {
 		grmRecs = append(grmRecs, newrec)
 		return grmRecs[len(grmRecs)-1].Rec, len(grmRecs) - 1
@@ -184,6 +199,16 @@ func STT(req sr.SpeechRequest) (string, error) {
 		withGrm = true
 	}
 	rec, recind := getRec(withGrm)
+	defer func() {
+		recsmu.Lock()
+		if withGrm {
+			grmRecs[recind].InUse = false
+		} else {
+			gpRecs[recind].InUse = false
+		}
+		recsmu.Unlock()
+		go rec.Reset()
+	}()
 	rec.SetWords(1)
 	rec.AcceptWaveform(req.FirstReq)
 	req.DetectEndOfSpeech()
@@ -202,13 +227,7 @@ func STT(req sr.SpeechRequest) (string, error) {
 	}
 	var jres map[string]interface{}
 	json.Unmarshal([]byte(rec.FinalResult()), &jres)
-	if withGrm {
-		grmRecs[recind].InUse = false
-	} else {
-		gpRecs[recind].InUse = false
-	}
 	transcribedText := jres["text"].(string)
 	fmt.Println("Bot " + req.Device + " Transcribed text: " + transcribedText)
-	go rec.Reset()
 	return transcribedText, nil
 }
