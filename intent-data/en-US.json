@@ -16,12 +16,7 @@
 	},
 	{	
 		"name": "intent_name_victor_say", 
-		"keyphrases" : ["who are", "who are you", "whats your name", "what's your name"],
-		"requiresexact": false
-	},
-	{	
-		"name": "intent_name_victor_set", 
-		"keyphrases" : ["your name", "you're name", "you name", "you name is", "your name is", "you're name is"],
+		"keyphrases" : ["your name", "you're name", "you name", "who are", "who are you", "whats your name", "what's your name"],
 		"requiresexact": false
 	},
 	{	
