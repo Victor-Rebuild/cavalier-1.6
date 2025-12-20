@@ -40,7 +40,7 @@ func NewAudioProcessor(sampleRate int, cutoffHz float64, vadMode int) (*AudioPro
 	if err != nil {
 		return nil, err
 	}
-	if err := v.SetMode(vadMode); err != nil {
+	if err := v.SetMode(0); err != nil {
 		return nil, err
 	}
 
