@@ -278,5 +278,10 @@
 		"name": "intent_play_keepaway",
 		"keyphrases": ["keepaway", "keep away", "play keepaway" ],
 		"requiresexact": false
+	},
+	{	
+		"name": "intent_current_date", 
+		"keyphrases" : ["date is it", "the date", "what date", "date", "what date is it" ],
+		"requiresexact": false
 	}
 ]
