@@ -12,6 +12,8 @@ import (
 	"cavalier/pkg/vars"
 )
 
+var cantProcessIntent string = "Sorry for the inconvenience, I've most likely ran out of houndify credits for today and can't process this intent graph request. Please try again later."
+
 func (s *Server) ProcessIntentGraph(req *vtt.IntentGraphRequest) (*vtt.IntentGraphResponse, error) {
 	requestStartTime := time.Now()
 	
@@ -68,8 +70,8 @@ func (s *Server) ProcessIntentGraph(req *vtt.IntentGraphRequest) (*vtt.IntentGra
 				fmt.Printf("Bot %s - Houndify request took: %v\n", req.Device, houndifyDuration)
 				
 				if apiResponse == "" {
-					fmt.Println("Houndify intent graph returned error/empty, I'm prolly out of credits again")
-					ttr.KnowledgeGraphResponseIG(req, "Sorry for the inconvenience, I've most likely ran out of houndify credits for today and can't process this intent graph request. Please try again later.", transcribedText)
+					fmt.Println("Houndify intent graph returned error/empty, I'm prolly out of credits again, send the message")
+					ttr.KnowledgeGraphResponseIG(req, cantProcessIntent, transcribedText)
 					totalDuration := time.Since(requestStartTime)
 					fmt.Printf("Bot %s - Total request time: %v\n", req.Device, totalDuration)
 					fmt.Println("Bot " + speechReq.Device + " request served via Houndify.")

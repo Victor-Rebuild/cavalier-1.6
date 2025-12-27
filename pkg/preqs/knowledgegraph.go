@@ -20,6 +20,7 @@ import (
 var HKGclient houndify.Client
 var HoundEnable bool = true
 
+var cantProcessKnowledge string = "Sorry for the inconvenience, I've most likely ran out of houndify credits for today and can't process this knowledge graph request. Please try again later."
 
 var houndifyCache = make(map[string]cacheEntry)
 var cacheMutex sync.RWMutex
@@ -97,10 +98,11 @@ func (s *Server) ProcessKnowledgeGraph(req *vtt.KnowledgeGraphRequest) (*vtt.Kno
 		// Check if response is empty or contains error
 		var spokenResponse string
 		if apiResponse == "" || strings.TrimSpace(apiResponse) == "" {
-			fmt.Println("Houndify knowledge graph returned error/empty, I'm prolly out of credits again")
-			spokenResponse = "Sorry for the inconvenience, I've most likely ran out of houndify credits for today and can't process this knowledge graph request. Please try again later."
+			fmt.Println("Houndify knowledge graph returned error/empty, I'm prolly out of credits again, send the message")
+			spokenResponse = cantProcessIntent
 		} else {
 			spokenResponse = apiResponse
+			fmt.Println(spokenResponse)
 		}
 		
 		kg := pb.KnowledgeGraphResponse{
