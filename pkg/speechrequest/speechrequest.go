@@ -109,7 +109,7 @@ func BytesToIntVAD(stream opus.OggStream, data []byte, die bool, isOpus bool) []
 // Uses VAD to detect when the user stops speaking
 func (req *SpeechRequest) DetectEndOfSpeech() (bool, bool) {
 	// changes InactiveFrames and ActiveFrames in req
-	inactiveNumMax := 5
+	inactiveNumMax := 3
 	for _, chunk := range SplitVAD(req.LastAudioChunk) {
 		active, err := req.VADInst.Process(16000, chunk)
 		if err != nil {
@@ -123,7 +123,7 @@ func (req *SpeechRequest) DetectEndOfSpeech() (bool, bool) {
 		} else {
 			req.InactiveFrames = req.InactiveFrames + 1
 		}
-		if req.InactiveFrames >= inactiveNumMax && req.ActiveFrames > 18 {
+		if req.InactiveFrames >= inactiveNumMax && req.ActiveFrames > 15 {
 			fmt.Println("(Bot " + req.Device + ") End of speech detected.")
 			return true, true
 		}

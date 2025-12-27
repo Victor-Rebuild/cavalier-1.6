@@ -209,9 +209,15 @@ func STT(req sr.SpeechRequest) (string, error) {
 		recsmu.Unlock()
 		go rec.Reset()
 	}()
-	rec.SetWords(1)
+	
+	rec.SetWords(0)
+	
 	rec.AcceptWaveform(req.FirstReq)
 	req.DetectEndOfSpeech()
+	
+	var lastPartial string
+	var stableCount int
+	
 	for {
 		chunk, err := req.GetNextStreamChunk()
 		if err != nil {
@@ -220,6 +226,20 @@ func STT(req sr.SpeechRequest) (string, error) {
 		speechIsDone, doProcess := req.DetectEndOfSpeech()
 		if doProcess {
 			rec.AcceptWaveform(chunk)
+			
+			var partialRes map[string]interface{}
+			json.Unmarshal([]byte(rec.PartialResult()), &partialRes)
+			if partial, ok := partialRes["partial"].(string); ok {
+				if partial == lastPartial && len(partial) > 5 {
+					stableCount++
+					if stableCount >= 3 && speechIsDone {
+						break
+					}
+				} else {
+					stableCount = 0
+					lastPartial = partial
+				}
+			}
 		}
 		if speechIsDone {
 			break

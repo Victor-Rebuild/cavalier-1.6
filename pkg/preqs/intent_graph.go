@@ -3,6 +3,7 @@ package processreqs
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"cavalier/pkg/vtt"
 
@@ -12,12 +13,19 @@ import (
 )
 
 func (s *Server) ProcessIntentGraph(req *vtt.IntentGraphRequest) (*vtt.IntentGraphResponse, error) {
+	requestStartTime := time.Now()
+	
 	var successMatched bool
 	speechReq := sr.ReqToSpeechRequest(req)
 	var transcribedText string
+	var err error
+	
 	if !isSti {
-		var err error
+		sttStartTime := time.Now()
 		transcribedText, err = sttHandler(speechReq)
+		sttDuration := time.Since(sttStartTime)
+		fmt.Printf("Bot %s - STT took: %v\n", req.Device, sttDuration)
+		
 		if err != nil {
 			ttr.IntentPass(req, "intent_system_noaudio", "voice processing error: "+err.Error(), map[string]string{"error": err.Error()}, true)
 			return nil, nil
@@ -26,7 +34,12 @@ func (s *Server) ProcessIntentGraph(req *vtt.IntentGraphRequest) (*vtt.IntentGra
 			ttr.IntentPass(req, "intent_system_noaudio", "", map[string]string{}, false)
 			return nil, nil
 		}
+		
+		intentStartTime := time.Now()
 		successMatched = ttr.ProcessTextAll(req, transcribedText, vars.IntentList, speechReq.IsOpus)
+		intentDuration := time.Since(intentStartTime)
+		fmt.Printf("Bot %s - Intent matching took: %v\n", req.Device, intentDuration)
+		
 	} else {
 		intent, slots, err := stiHandler(speechReq)
 		if err != nil {
@@ -47,9 +60,16 @@ func (s *Server) ProcessIntentGraph(req *vtt.IntentGraphRequest) (*vtt.IntentGra
 		if vars.APIConfig.Knowledge.Enable {
 			fmt.Println("No intent matched, forwarding to Houndify for device " + req.Device + "...")
 			InitKnowledge() // Errors without this for whatever reason even though I think it should be inited already
-			apiResponse := houndifyTextRequest(transcribedText, req.Device, req.Session)
+			
+			houndifyStartTime := time.Now()
+			apiResponse := getCachedOrFetch(transcribedText, req.Device, req.Session)
+			houndifyDuration := time.Since(houndifyStartTime)
+			fmt.Printf("Bot %s - Houndify request took: %v\n", req.Device, houndifyDuration)
+			
 			if apiResponse != "" && !strings.Contains(apiResponse, "not enabled") && !strings.Contains(apiResponse, "Knowledge graph is not enabled") && !strings.Contains(apiResponse, "Didn't get that!") {
 				ttr.KnowledgeGraphResponseIG(req, apiResponse, transcribedText)
+				totalDuration := time.Since(requestStartTime)
+				fmt.Printf("Bot %s - Total request time: %v\n", req.Device, totalDuration)
 				fmt.Println("Bot " + speechReq.Device + " request served via Houndify.")
 				return nil, nil
 			}
@@ -58,8 +78,12 @@ func (s *Server) ProcessIntentGraph(req *vtt.IntentGraphRequest) (*vtt.IntentGra
 		}
 		fmt.Println("No intent was matched.")
 		ttr.IntentPass(req, "intent_system_unmatched", transcribedText, map[string]string{"": ""}, false)
+		totalDuration := time.Since(requestStartTime)
+		fmt.Printf("Bot %s - Total request time: %v\n", req.Device, totalDuration)
 		return nil, nil
 	}
 	fmt.Println("Bot " + speechReq.Device + " request served.")
+	totalDuration := time.Since(requestStartTime)
+	fmt.Printf("Bot %s - Total request time: %v\n", req.Device, totalDuration)
 	return nil, nil
 }
