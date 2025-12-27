@@ -89,7 +89,7 @@ func (s *Server) ProcessKnowledgeGraph(req *vtt.KnowledgeGraphRequest) (*vtt.Kno
 		var spokenResponse string
 		if apiResponse == "" || strings.TrimSpace(apiResponse) == "" {
 			fmt.Println("Houndify knowledge graph returned error/empty, I'm prolly out of credits again, send the message")
-			spokenResponse = cantProcessIntent
+			spokenResponse = cantProcessKnowledge
 		} else {
 			spokenResponse = apiResponse
 			fmt.Println(spokenResponse)
