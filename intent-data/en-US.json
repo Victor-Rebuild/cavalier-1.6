@@ -221,7 +221,7 @@
 	},
 	{	
 		"name": "intent_clock_time", 
-		"keyphrases" : ["time is it", "the time", "what time", "clock", "what time is it" ],
+		"keyphrases" : ["time is it", "the time", "times", "what time", "clock", "what time is it" ],
 		"requiresexact": false
 	},
 	{	
