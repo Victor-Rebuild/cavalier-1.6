@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"strings"
 	"regexp"
-	"sync"
-	"time"
 
 	sr "cavalier/pkg/speechrequest"
 	"cavalier/pkg/vars"
@@ -21,14 +19,6 @@ var HKGclient houndify.Client
 var HoundEnable bool = true
 
 var cantProcessKnowledge string = "Sorry for the inconvenience, I've most likely ran out of houndify credits for today and can't process this knowledge graph request. Please try again later."
-
-var houndifyCache = make(map[string]cacheEntry)
-var cacheMutex sync.RWMutex
-
-type cacheEntry struct {
-	response  string
-	timestamp time.Time
-}
 
 func ParseSpokenResponse(serverResponseJSON string) (string, error) {
 	result := make(map[string]interface{})
@@ -157,45 +147,4 @@ func houndifyTextRequest(queryText string, device string, session string) string
 	
 	fmt.Println("Houndify response:", apiResponse)
 	return apiResponse
-}
-
-// getCachedOrFetch checks cache first, then fetches from Houndify if needed
-func getCachedOrFetch(query string, device string, session string) string {
-	cacheKey := strings.ToLower(strings.TrimSpace(query))
-	
-	cacheMutex.RLock()
-	if entry, exists := houndifyCache[cacheKey]; exists {
-		if time.Since(entry.timestamp) < 10*time.Hour {
-			cacheMutex.RUnlock()
-			fmt.Printf("Cache HIT for query: %s (age: %v)\n", query, time.Since(entry.timestamp))
-			return entry.response
-		}
-	}
-	cacheMutex.RUnlock()
-	
-	fmt.Println("Cache MISS for query:", query)
-	
-	response := houndifyTextRequest(query, device, session)
-
-	if response != "" && !strings.Contains(response, "not enabled") {
-		cacheMutex.Lock()
-		houndifyCache[cacheKey] = cacheEntry{
-			response:  response,
-			timestamp: time.Now(),
-		}
-		if len(houndifyCache) > 100 {
-			var oldestKey string
-			oldestTime := time.Now()
-			for k, v := range houndifyCache {
-				if v.timestamp.Before(oldestTime) {
-					oldestTime = v.timestamp
-					oldestKey = k
-				}
-			}
-			delete(houndifyCache, oldestKey)
-		}
-		cacheMutex.Unlock()
-	}
-	
-	return response
 }

@@ -65,7 +65,7 @@ func (s *Server) ProcessIntentGraph(req *vtt.IntentGraphRequest) (*vtt.IntentGra
 				InitKnowledge() // Errors without this for whatever reason even though I think it should be inited already
 				
 				houndifyStartTime := time.Now()
-				apiResponse := getCachedOrFetch(transcribedText, req.Device, req.Session)
+				apiResponse := houndifyTextRequest(transcribedText, req.Device, req.Session)
 				houndifyDuration := time.Since(houndifyStartTime)
 				fmt.Printf("Bot %s - Houndify request took: %v\n", req.Device, houndifyDuration)
 				
