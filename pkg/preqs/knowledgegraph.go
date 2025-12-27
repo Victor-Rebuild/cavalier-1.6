@@ -93,11 +93,21 @@ func (s *Server) ProcessKnowledgeGraph(req *vtt.KnowledgeGraphRequest) (*vtt.Kno
 	speechReq := sr.ReqToSpeechRequest(req)
 	if vars.APIConfig.Knowledge.Enable && vars.APIConfig.Knowledge.Provider == "houndify" {
 		apiResponse := KgRequest(req, speechReq)
+		
+		// Check if response is empty or contains error
+		var spokenResponse string
+		if apiResponse == "" || strings.TrimSpace(apiResponse) == "" {
+			fmt.Println("Houndify knowledge graph returned error/empty, I'm prolly out of credits again")
+			spokenResponse = "Sorry for the inconvenience, I've most likely ran out of houndify credits for today and can't process this knowledge graph request. Please try again later."
+		} else {
+			spokenResponse = apiResponse
+		}
+		
 		kg := pb.KnowledgeGraphResponse{
 			Session:     req.Session,
 			DeviceId:    req.Device,
 			CommandType: NoResult,
-			SpokenText:  apiResponse,
+			SpokenText:  spokenResponse,
 		}
 		fmt.Println("(KG) Bot " + speechReq.Device + " request served.")
 		if err := req.Stream.Send(&kg); err != nil {
