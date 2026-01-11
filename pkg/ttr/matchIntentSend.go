@@ -66,11 +66,11 @@ func IntentPass(req interface{}, intentThing string, speechText string, intentPa
 		r := &vtt.IntentResponse{
 			Intent: &intent,
 		}
-		logger.Println("Bot " + esn + " Intent Sent: " + intentThing)
+		fmt.Println("Bot " + esn + " Intent Sent: " + intentThing)
 		if isParam {
-			logger.Println("Bot "+esn+" Parameters Sent:", intentParams)
+			fmt.Println("Bot "+esn+" Parameters Sent:", intentParams)
 		} else {
-			logger.Println("No Parameters Sent")
+			fmt.Println("No Parameters Sent")
 		}
 		return r, nil
 	} else {
@@ -80,11 +80,11 @@ func IntentPass(req interface{}, intentThing string, speechText string, intentPa
 		r := &vtt.IntentGraphResponse{
 			Intent: &intentGraphSend,
 		}
-		logger.Println("Bot " + esn + " Intent Sent: " + intentThing)
+		fmt.Println("Bot " + esn + " Intent Sent: " + intentThing)
 		if isParam {
-			logger.Println("Bot "+esn+" Parameters Sent:", intentParams)
+			fmt.Println("Bot "+esn+" Parameters Sent:", intentParams)
 		} else {
-			logger.Println("No Parameters Sent")
+			fmt.Println("No Parameters Sent")
 		}
 		return r, nil
 	}
@@ -109,12 +109,12 @@ func ProcessTextAll(req interface{}, voiceText string, intents []vars.JsonIntent
 	var intentNum int = 0
 	var successMatched bool = false
 	voiceText = strings.ToLower(voiceText)
-	logger.Println("Not a custom intent")
+	fmt.Println("Not a custom intent")
 	// Look for a perfect match first
 	for _, b := range intents {
 		for _, c := range b.Keyphrases {
 			if voiceText == strings.ToLower(c) {
-				logger.Println("Bot " + botSerial + " Perfect match for intent " + b.Name + " (" + strings.ToLower(c) + ")")
+				fmt.Println("Bot " + botSerial + " Perfect match for intent " + b.Name + " (" + strings.ToLower(c) + ")")
 				if isOpus {
 					ParamChecker(req, b.Name, voiceText, botSerial)
 				} else {
@@ -138,7 +138,7 @@ func ProcessTextAll(req interface{}, voiceText string, intents []vars.JsonIntent
 		for _, b := range intents {
 			for _, c := range b.Keyphrases {
 				if strings.Contains(voiceText, strings.ToLower(c)) && !b.RequireExactMatch {
-					logger.Println("Bot " + botSerial + " Partial match for intent " + b.Name + " (" + strings.ToLower(c) + ")")
+					fmt.Println("Bot " + botSerial + " Partial match for intent " + b.Name + " (" + strings.ToLower(c) + ")")
 					if isOpus {
 						ParamChecker(req, b.Name, voiceText, botSerial)
 					} else {
@@ -164,7 +164,7 @@ func KnowledgeGraphResponseIG(req *vtt.IntentGraphRequest, spokenText string, qu
 		QueryText: queryText,
 		Action:    "intent_knowledge_response_extend_bypass",
 	}
-	
+
 	intentGraphSend := pb.IntentGraphResponse{
 		ResponseType: pb.IntentGraphMode_KNOWLEDGE_GRAPH,
 		IsFinal:      true,
@@ -173,7 +173,7 @@ func KnowledgeGraphResponseIG(req *vtt.IntentGraphRequest, spokenText string, qu
 		QueryText:    queryText,
 		CommandType:  pb.RobotMode_VOICE_COMMAND.String(),
 	}
-	
+
 	if err := req.Stream.Send(&intentGraphSend); err != nil {
 		return err
 	}
