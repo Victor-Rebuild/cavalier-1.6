@@ -38,6 +38,7 @@ func getBotDetailsFromTokReq(ctx context.Context, req *tokenpb.AssociatePrimaryU
 	if !ok {
 		return "", nil, "", "", errors.New("no peer info found in context")
 	}
+	fmt.Println(p)
 	if p.AuthInfo != nil {
 		if tlsInfo, ok := p.AuthInfo.(credentials.TLSInfo); ok {
 			if len(tlsInfo.State.PeerCertificates) == 0 {
@@ -54,10 +55,12 @@ func getBotDetailsFromTokReq(ctx context.Context, req *tokenpb.AssociatePrimaryU
 		name = certParsed.Issuer.CommonName
 	}
 	md, ok := metadata.FromIncomingContext(ctx)
+	fmt.Println(md)
 	if !ok {
 		return "", nil, "", "", errors.New("no metadata found in context")
 	}
 	token = md["anki-user-session"][0]
+	fmt.Println(token, cert, name, esn)
 	return token, cert, name, esn, nil
 }
 
@@ -133,6 +136,7 @@ func decodeJWT(tokenString string) (string, string, error) {
 }
 
 func (s *TokenServer) AssociatePrimaryUser(ctx context.Context, req *tokenpb.AssociatePrimaryUserRequest) (*tokenpb.AssociatePrimaryUserResponse, error) {
+	logger.Println("Token: Incoming Associate Primary User request")
 	token, cert, name, esn, err := getBotDetailsFromTokReq(ctx, req)
 	thing := esn
 	esn = strings.TrimPrefix(esn, "vic:")
@@ -149,6 +153,7 @@ func (s *TokenServer) AssociatePrimaryUser(ctx context.Context, req *tokenpb.Ass
 }
 
 func (s *TokenServer) AssociateSecondaryClient(ctx context.Context, req *tokenpb.AssociateSecondaryClientRequest) (*tokenpb.AssociateSecondaryClientResponse, error) {
+	logger.Println("Token: Incoming Associate Secondary Client request")
 	token := req.UserSession
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
@@ -170,6 +175,7 @@ func (s *TokenServer) AssociateSecondaryClient(ctx context.Context, req *tokenpb
 }
 
 func (s *TokenServer) RefreshToken(ctx context.Context, req *tokenpb.RefreshTokenRequest) (*tokenpb.RefreshTokenResponse, error) {
+	logger.Println("Token: Incoming Refresh Token request")
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
 		return nil, errors.New("no request metadata")
