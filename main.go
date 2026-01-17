@@ -17,7 +17,7 @@ import (
 	"os"
 	"runtime"
 
-	stt "cavalier/pkg/vosk"
+	stt "cavalier/pkg/stt/vosk"
 
 	chipperpb "github.com/digital-dream-labs/api/go/chipperpb"
 	"github.com/digital-dream-labs/api/go/jdocspb"
