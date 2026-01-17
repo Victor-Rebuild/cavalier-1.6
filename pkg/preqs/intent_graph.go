@@ -69,16 +69,16 @@ func (s *Server) ProcessIntentGraph(req *vtt.IntentGraphRequest) (*vtt.IntentGra
 				houndifyDuration := time.Since(houndifyStartTime)
 				fmt.Printf("Bot %s - Houndify request took: %v\n", req.Device, houndifyDuration)
 				
-				if apiResponse == "" {
-					fmt.Println("Houndify intent graph returned error/empty, I'm prolly out of credits again, send the message")
-					ttr.KnowledgeGraphResponseIG(req, cantProcessIntent, transcribedText)
-					totalDuration := time.Since(requestStartTime)
-					fmt.Printf("Bot %s - Total request time: %v\n", req.Device, totalDuration)
-					fmt.Println("Bot " + speechReq.Device + " request served via Houndify.")
-					return nil, nil
-				}
-
 				if apiResponse != "" && !strings.Contains(apiResponse, "not enabled") && !strings.Contains(apiResponse, "Knowledge graph is not enabled") && !strings.Contains(apiResponse, "Didn't get that!") {
+					if apiResponse == "" {
+						fmt.Println("Houndify intent graph returned error/empty, I'm prolly out of credits again, send the message")
+						ttr.KnowledgeGraphResponseIG(req, cantProcessIntent, transcribedText)
+						totalDuration := time.Since(requestStartTime)
+						fmt.Printf("Bot %s - Total request time: %v\n", req.Device, totalDuration)
+						fmt.Println("Bot " + speechReq.Device + " request served via Houndify.")
+						return nil, nil
+					}
+
 					ttr.KnowledgeGraphResponseIG(req, apiResponse, transcribedText)
 					totalDuration := time.Since(requestStartTime)
 					fmt.Printf("Bot %s - Total request time: %v\n", req.Device, totalDuration)
