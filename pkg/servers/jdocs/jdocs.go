@@ -26,7 +26,7 @@ func (s *JdocServer) WriteDoc(ctx context.Context, req *jdocspb.WriteDocReq) (*j
 		ClientMetadata: req.Doc.ClientMetadata,
 		JsonDoc:        req.Doc.JsonDoc,
 	})
-	fmt.Println(req.Doc.JsonDoc)
+	fmt.Println("Doc written successfully")
 	return &jdocspb.WriteDocResp{
 		Status:           jdocspb.WriteDocResp_ACCEPTED,
 		LatestDocVersion: req.Doc.DocVersion,
@@ -65,7 +65,7 @@ func (s *JdocServer) ReadDocs(ctx context.Context, req *jdocspb.ReadDocsReq) (*j
 			})
 		}
 	}
-	fmt.Println(&resp)
+	fmt.Println("Doc read succesfully")
 	return &resp, nil
 }
 
