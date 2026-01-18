@@ -39,6 +39,9 @@ func ReloadVosk() {
 func New(InitFunc func() error, SttHandler interface{}, voiceProcessor string) (*Server, error) {
 
 	// Decide the TTS language
+	VoiceProcessor = voiceProcessor
+	vars.APIConfig.STT.Service = voiceProcessor
+
 	if voiceProcessor != "vosk" && voiceProcessor != "whisper.cpp" {
 		vars.APIConfig.STT.Language = "en-US"
 	}
