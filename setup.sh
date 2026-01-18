@@ -125,7 +125,7 @@ function setupWhisper() {
 }
 
 function detectCUDA() {
-    if [[ -f /usr/local/cuda/bin/nvcc ]]; then
+    if [[ -f /usr/bin/nvcc ]]; then
         echo
         echo "CUDA toolkit detected, would you like to compile Whisper to use it?"
 	echo
