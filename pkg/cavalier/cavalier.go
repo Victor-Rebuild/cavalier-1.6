@@ -15,7 +15,6 @@ import (
 	"net"
 	"net/http"
 	"os"
-	"runtime"
 
 	chipperpb "github.com/digital-dream-labs/api/go/chipperpb"
 	"github.com/digital-dream-labs/api/go/jdocspb"
@@ -24,9 +23,6 @@ import (
 )
 
 func InitCavalier(InitFunc func() error, SttHandler interface{}, voiceProcessor string) {
-	runtime.GOMAXPROCS(runtime.NumCPU())
-	fmt.Printf("Using %d CPU threads\n", runtime.NumCPU())
-	
 	vars.Init()
 	dbConn, err := sql.Open("sqlite3", "./user_database.db")
 	if err != nil {

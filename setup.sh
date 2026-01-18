@@ -54,7 +54,7 @@ function voskModelPrompt() {
 }
 
 function whichWhisperModel() {
-    availableModels="tiny, small, medium, large-v3, large-v3-q5_0"
+    availableModels="tiny, small, medium, medium-q8_0, large-v3, large-v3-q5_0, large-v3-turbo-q5_0"
     echo
     echo "Which Whisper model would you like to use?"
     echo "Options: $availableModels"
@@ -114,7 +114,9 @@ function setupWhisper() {
     cp models/ggml-$whispermodel.bin ../whisper/ggml.bin
     rm -rf build_go
     cmake -B build_go \
-    -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+    -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+    -DGGML_CUDA=ON \
+    -DGGML_CCACHE=OFF
     cmake --build build_go --config Release
     cd ..
 }
