@@ -1,4 +1,4 @@
-package main
+package cavalier
 
 import (
 	processreqs "cavalier/pkg/preqs"
@@ -17,19 +17,16 @@ import (
 	"os"
 	"runtime"
 
-	stt "cavalier/pkg/stt/vosk"
-
 	chipperpb "github.com/digital-dream-labs/api/go/chipperpb"
 	"github.com/digital-dream-labs/api/go/jdocspb"
 	"github.com/digital-dream-labs/api/go/tokenpb"
 	grpcserver "github.com/digital-dream-labs/hugh/grpc/server"
 )
 
-func main() {
-
+func InitCavalier(InitFunc func() error, SttHandler interface{}, voiceProcessor string) {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	fmt.Printf("Using %d CPU threads\n", runtime.NumCPU())
-
+	
 	vars.Init()
 	dbConn, err := sql.Open("sqlite3", "./user_database.db")
 	if err != nil {
@@ -56,7 +53,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	certPriv, _ := os.ReadFile(vars.KeyPath)
+	certPriv, err := os.ReadFile(vars.KeyPath)
 	if err != nil {
 		panic(err)
 	}
@@ -75,7 +72,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	p, err := processreqs.New(stt.Init, stt.STT, stt.Name)
+	p, err := processreqs.New(InitFunc, SttHandler, voiceProcessor)
 	if err != nil {
 		panic(err)
 	}
