@@ -3,8 +3,8 @@ package processreqs
 import (
 	"encoding/json"
 	"fmt"
-	"strings"
 	"regexp"
+	"strings"
 
 	sr "cavalier/pkg/speechrequest"
 	"cavalier/pkg/vars"
@@ -18,7 +18,7 @@ import (
 var HKGclient houndify.Client
 var HoundEnable bool = true
 
-var cantProcessKnowledge string = "Sorry for the inconvenience, I've most likely ran out of houndify credits for today and can't process this knowledge graph request. Please try again later."
+var cantProcessKnowledge string = "Houndify returned no response. Please try again later."
 
 func ParseSpokenResponse(serverResponseJSON string) (string, error) {
 	result := make(map[string]interface{})
@@ -84,7 +84,7 @@ func (s *Server) ProcessKnowledgeGraph(req *vtt.KnowledgeGraphRequest) (*vtt.Kno
 	speechReq := sr.ReqToSpeechRequest(req)
 	if vars.APIConfig.Knowledge.Enable && vars.APIConfig.Knowledge.Provider == "houndify" {
 		apiResponse := KgRequest(req, speechReq)
-		
+
 		// Check if response is empty or contains error
 		var spokenResponse string
 		if apiResponse == "" || strings.TrimSpace(apiResponse) == "" {
@@ -94,7 +94,7 @@ func (s *Server) ProcessKnowledgeGraph(req *vtt.KnowledgeGraphRequest) (*vtt.Kno
 			spokenResponse = apiResponse
 			fmt.Println(spokenResponse)
 		}
-		
+
 		kg := pb.KnowledgeGraphResponse{
 			Session:     req.Session,
 			DeviceId:    req.Device,
@@ -121,30 +121,30 @@ func houndifyTextRequest(queryText string, device string, session string) string
 	if !vars.APIConfig.Knowledge.Enable || vars.APIConfig.Knowledge.Provider != "houndify" {
 		return "Houndify is not enabled."
 	}
-	
+
 	fmt.Println("Sending text request to Houndify...")
-	
+
 	req := houndify.TextRequest{
 		Query:     queryText,
 		UserID:    device,
 		RequestID: session,
 	}
-	
+
 	serverResponse, err := HKGclient.TextSearch(req)
 	if err != nil {
 		fmt.Println("Error sending text request to Houndify:", err)
 		return ""
 	}
-	
+
 	apiResponse, err := ParseSpokenResponse(serverResponse)
 	if err != nil {
 		fmt.Println("Error parsing Houndify response:", err)
 		fmt.Println("Raw response:", serverResponse)
 		return ""
 	}
-	
+
 	apiResponse = cleanHoundifyResponse(apiResponse)
-	
+
 	fmt.Println("Houndify response:", apiResponse)
 	return apiResponse
 }
