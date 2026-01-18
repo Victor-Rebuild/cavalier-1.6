@@ -8,5 +8,5 @@ vosklib/
 main
 session-certs
 cavalier
-/whisper
-/whisper.cpp
+whisper
+whisper.cpp
