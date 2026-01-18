@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"math/big"
 	"os"
-	"strings"
 )
 
 var (
@@ -75,15 +74,10 @@ type JsonIntent struct {
 func LoadIntents() ([]JsonIntent, error) {
 	var path string
 	path = "./"
+	jsonFile, err := os.ReadFile(path + "intent-data/" + APIConfig.STT.Language + ".json")
 
 	// var matches [][]string
 	// var intents []string
-
-	if APIConfig.STT.Service == "whisper.cpp" || APIConfig.STT.Service == "whisper" {
-		return LoadAllLanguageIntents(path)
-	}
-
-	jsonFile, err := os.ReadFile(path + "intent-data/" + APIConfig.STT.Language + ".json")
 	var jsonIntents []JsonIntent
 	if err == nil {
 		err = json.Unmarshal(jsonFile, &jsonIntents)
@@ -99,50 +93,6 @@ func LoadIntents() ([]JsonIntent, error) {
 		// fmt.Println("Loaded " + strconv.Itoa(len(jsonIntents)) + " intents and " + strconv.Itoa(len(matches)) + " matches (language: " + APIConfig.STT.Language + ")")
 	}
 	return jsonIntents, err
-}
-
-func LoadAllLanguageIntents(basePath string) ([]JsonIntent, error) {
-	intentPath := basePath + "intent-data/"
-	files, err := os.ReadDir(intentPath)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read intent-data directory: %w", err)
-	}
-
-	var allIntents []JsonIntent
-	intentMap := make(map[string]JsonIntent)
-
-	for _, file := range files {
-		if !file.IsDir() && strings.HasSuffix(file.Name(), ".json") {
-			jsonFile, err := os.ReadFile(intentPath + file.Name())
-			if err != nil {
-				fmt.Printf("Warning: failed to read %s: %v\n", file.Name(), err)
-				continue
-			}
-
-			var jsonIntents []JsonIntent
-			err = json.Unmarshal(jsonFile, &jsonIntents)
-			if err != nil {
-				fmt.Printf("Warning: failed to unmarshal %s: %v\n", file.Name(), err)
-				continue
-			}
-
-			for _, intent := range jsonIntents {
-				if existing, exists := intentMap[intent.Name]; exists {
-					existing.Keyphrases = append(existing.Keyphrases, intent.Keyphrases...)
-					intentMap[intent.Name] = existing
-				} else {
-					intentMap[intent.Name] = intent
-				}
-			}
-		}
-	}
-
-	for _, intent := range intentMap {
-		allIntents = append(allIntents, intent)
-	}
-
-	fmt.Printf("Loaded %d intents from all languages\n", len(allIntents))
-	return allIntents, nil
 }
 
 func GenerateID() string {
