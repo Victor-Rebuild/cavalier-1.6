@@ -10,3 +10,4 @@ session-certs
 cavalier
 whisper
 whisper.cpp
+blacklist.json

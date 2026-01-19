@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math/big"
 	"os"
+	"strings"
 )
 
 var (
@@ -57,6 +58,10 @@ type apiConfig struct {
 		EPConfig bool   `json:"epconfig"`
 		Port     string `json:"port"`
 	} `json:"server"`
+	Blacklist struct {
+		Enable bool     `json:"enable"`
+		ESNs   []string `json:"esns"`
+	} `json:"blacklist"`
 	HasReadFromEnv   bool `json:"hasreadfromenv"`
 	PastInitialSetup bool `json:"pastinitialsetup"`
 }
@@ -69,6 +74,26 @@ type JsonIntent struct {
 	Name              string   `json:"name"`
 	Keyphrases        []string `json:"keyphrases"`
 	RequireExactMatch bool     `json:"requiresexact"`
+}
+
+func IsESNBlacklisted(esn string) bool {
+	if !APIConfig.Blacklist.Enable {
+		return false
+	}
+
+	esn = strings.ToLower(strings.TrimSpace(esn))
+	esn = strings.TrimPrefix(esn, "vic:")
+
+	for _, blacklistedESN := range APIConfig.Blacklist.ESNs {
+		blacklistedESN = strings.ToLower(strings.TrimSpace(blacklistedESN))
+		blacklistedESN = strings.TrimPrefix(blacklistedESN, "vic:")
+
+		if esn == blacklistedESN {
+			return true
+		}
+	}
+
+	return false
 }
 
 func LoadIntents() ([]JsonIntent, error) {
@@ -112,6 +137,9 @@ func Init() {
 	KeyPath = os.Getenv("KEY")
 	CertPath = os.Getenv("CERT")
 	os.MkdirAll(SessionCertsStorage, 0777)
+
+	LoadConfig()
+
 	APIConfig.STT.Language = "en-US"
 	APIConfig.STT.Service = "vosk"
 	APIConfig.Knowledge.Enable = true
@@ -121,4 +149,26 @@ func Init() {
 	APIConfig.Weather.Enable = true
 	APIConfig.Weather.Key = os.Getenv(WeatherKeyEnv)
 	APIConfig.Weather.Provider = "weatherapi.com"
+}
+
+func LoadConfig() {
+	configPath := "./blacklist.json"
+	if _, err := os.Stat(configPath); err == nil {
+		data, err := os.ReadFile(configPath)
+		if err != nil {
+			fmt.Println("Failed to read blacklist file:", err)
+			return
+		}
+
+		err = json.Unmarshal(data, &APIConfig)
+		if err != nil {
+			fmt.Println("Failed to parse blacklist file:", err)
+			return
+		}
+
+		fmt.Println("Loaded blacklist from blacklist.json")
+		if APIConfig.Blacklist.Enable {
+			fmt.Printf("Blacklist enabled with %d ESNs\n", len(APIConfig.Blacklist.ESNs))
+		}
+	}
 }

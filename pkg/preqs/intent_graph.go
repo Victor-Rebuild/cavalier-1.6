@@ -14,6 +14,8 @@ import (
 
 var cantProcessIntent string = "Houndify returned no response. Please try again later."
 
+var youFuckedUp string = "You fucked up, your robot has been blacklisted from this server, goodbye."
+
 func (s *Server) ProcessIntentGraph(req *vtt.IntentGraphRequest) (*vtt.IntentGraphResponse, error) {
 	requestStartTime := time.Now()
 
@@ -21,6 +23,19 @@ func (s *Server) ProcessIntentGraph(req *vtt.IntentGraphRequest) (*vtt.IntentGra
 	speechReq := sr.ReqToSpeechRequest(req)
 	var transcribedText string
 	var err error
+
+	// Check if ESN is blacklisted
+	if vars.IsESNBlacklisted(req.Device) {
+		fmt.Println("Blocked request from blacklisted ESN: " + req.Device)
+		InitKnowledge() // Errors without this for whatever reason even though I think it should be inited already
+
+		fmt.Println("This person fucked up")
+		fmt.Println(youFuckedUp)
+		ttr.KnowledgeGraphResponseIG(req, youFuckedUp, transcribedText)
+
+		fmt.Println("Houndify returned empty or error response")
+		return nil, fmt.Errorf("device is blacklisted")
+	}
 
 	if !isSti {
 		sttStartTime := time.Now()
