@@ -19,6 +19,7 @@ const STR_EYE_COLOR_TEAL2 = "str_eye_color_teal2"
 const STR_EYE_COLOR_GREEN = "str_eye_color_green"
 const STR_EYE_COLOR_ORANGE = "str_eye_color_orange"
 const STR_EYE_COLOR_RAINBOW = "str_eye_color_rainbow"
+const STR_EYE_COLOR_REBUILD = "str_eye_color_rebuild"
 const STR_ME = "str_me"
 const STR_SELF = "str_self"
 const STR_VOLUME_LOW = "str_volume_low"
@@ -165,6 +166,7 @@ var texts = map[string][]string{
 	STR_EYE_COLOR_GREEN:                {"green", "verde", "verde", "vert", "grün", "zielony", "绿色", "yeşil", "зелёный", "groente", "зелений", "màu xanh lá", "초록색"},
 	STR_EYE_COLOR_ORANGE:               {"orange", "arancio", "naranja", "orange", "orange", "pomarańczowy", "橙色", "turuncu", "оранжевый", "oranje", "оранжевий", "màu cam", "주황색"},
 	STR_EYE_COLOR_RAINBOW:              {"rainbow", "arcobaleno", "arcoíris", "arc-en-ciel", "Regenbogen", "tęcza", "彩虹", "gökkuşağı", "радуга", "rainbow", "rainbow", "rainbow", "rainbow"},
+	STR_EYE_COLOR_REBUILD:              {"rebuild", "rebuild", "rebuild", "rebuild", "rebuild", "rebuild", "rebuild", "rebuild", "rebuild", "rebuild", "rebuild", "rebuild", "rebuild"},
 	STR_ME:                             {"me", "me", "me", "moi", "mir", "mnie", "我", "ben", "меня", "mij", "мене", "tôi", "나", "내"},
 	STR_SELF:                           {"self", "mi", "mía", "moi", "mein", "ja", "自己", "kendim", "себя", "zelf", "себе", "bản thân", "본인", "자신"},
 	STR_VOLUME_LOW:                     {"low", "minimo", "bajo", "bas", "niedrig", "niski", "低", "düşük", "низкий", "laag", "на мінімум", "thấp", "아주 작게"},

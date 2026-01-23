@@ -131,6 +131,8 @@ func ParamChecker(req interface{}, intent string, speechText string, botSerial s
 			intentParamValue = "COLOR_ORANGE"
 		} else if strings.Contains(speechText, lcztn.GetText(lcztn.STR_EYE_COLOR_RAINBOW)) {
 			intentParamValue = "COLOR_RAINBOW"
+		} else if strings.Contains(speechText, lcztn.GetText(lcztn.STR_EYE_COLOR_REBUILD)) {
+			intentParamValue = "COLOR_REBUILD"
 		} else {
 			newIntent = intent
 			intentParamValue = ""
@@ -378,7 +380,9 @@ func ParamCheckerSlotsEnUS(req interface{}, intent string, slots map[string]stri
 		} else if strings.Contains(slots["eye_color"], "orange") {
 			intentParamValue = "COLOR_ORANGE"
 		} else if strings.Contains(slots["eye_color"], "rainbow") {
-			intentParamValue = "COLOR_ORANGE"
+			intentParamValue = "COLOR_RAINBOW"
+		} else if strings.Contains(slots["eye_color"], "rebuild") {
+			intentParamValue = "COLOR_REBUILD"
 		} else {
 			newIntent = intent
 			intentParamValue = ""
@@ -526,6 +530,8 @@ func prehistoricParamChecker(req interface{}, intent string, speechText string) 
 			intentParamValue = "COLOR_ORANGE"
 		} else if strings.Contains(speechText, lcztn.GetText(lcztn.STR_EYE_COLOR_RAINBOW)) {
 			intentParamValue = "COLOR_RAINBOW"
+		} else if strings.Contains(speechText, lcztn.GetText(lcztn.STR_EYE_COLOR_REBUILD)) {
+			intentParamValue = "COLOR_REBUILD"
 		} else {
 			newIntent = intent
 			intentParamValue = ""
