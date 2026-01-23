@@ -381,7 +381,7 @@ func ParamCheckerSlotsEnUS(req interface{}, intent string, slots map[string]stri
 			intentParamValue = "COLOR_ORANGE"
 		} else if strings.Contains(slots["eye_color"], "rainbow") {
 			intentParamValue = "COLOR_RAINBOW"
-		} else if strings.Contains(slots["eye_color"], "rebuild") {
+		} else if strings.Contains(slots["eye_color"], "cross media bar") {
 			intentParamValue = "COLOR_REBUILD"
 		} else {
 			newIntent = intent

@@ -166,7 +166,7 @@ var texts = map[string][]string{
 	STR_EYE_COLOR_GREEN:                {"green", "verde", "verde", "vert", "grün", "zielony", "绿色", "yeşil", "зелёный", "groente", "зелений", "màu xanh lá", "초록색"},
 	STR_EYE_COLOR_ORANGE:               {"orange", "arancio", "naranja", "orange", "orange", "pomarańczowy", "橙色", "turuncu", "оранжевый", "oranje", "оранжевий", "màu cam", "주황색"},
 	STR_EYE_COLOR_RAINBOW:              {"rainbow", "arcobaleno", "arcoíris", "arc-en-ciel", "Regenbogen", "tęcza", "彩虹", "gökkuşağı", "радуга", "rainbow", "rainbow", "rainbow", "rainbow"},
-	STR_EYE_COLOR_REBUILD:              {"rebuild", "rebuild", "rebuild", "rebuild", "rebuild", "rebuild", "rebuild", "rebuild", "rebuild", "rebuild", "rebuild", "rebuild", "rebuild"},
+	STR_EYE_COLOR_REBUILD:              {"cross media bar", "cross media bar", "cross media bar", "cross media bar", "cross media bar", "cross media bar", "cross media bar", "cross media bar", "cross media bar", "cross media bar", "cross media bar", "cross media bar", "cross media bar"},
 	STR_ME:                             {"me", "me", "me", "moi", "mir", "mnie", "我", "ben", "меня", "mij", "мене", "tôi", "나", "내"},
 	STR_SELF:                           {"self", "mi", "mía", "moi", "mein", "ja", "自己", "kendim", "себя", "zelf", "себе", "bản thân", "본인", "자신"},
 	STR_VOLUME_LOW:                     {"low", "minimo", "bajo", "bas", "niedrig", "niski", "低", "düşük", "низкий", "laag", "на мінімум", "thấp", "아주 작게"},
