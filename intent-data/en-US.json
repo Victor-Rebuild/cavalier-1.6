@@ -280,7 +280,7 @@
 		"requiresexact": false
 	},
 	{	
-		"name": "intent_current_date", 
+		"name": "intent_knowledge_response_date_igraph", 
 		"keyphrases" : ["date is it", "the date", "what date", "date", "what date is it" ],
 		"requiresexact": false
 	}
