@@ -281,7 +281,17 @@
 	},
 	{	
 		"name": "intent_knowledge_response_date_igraph", 
-		"keyphrases" : ["date is it", "the date", "what date", "date", "what date is it" ],
+		"keyphrases" : ["date is it", "the date", "what date", "date", "what date is it", "day", "what day", "day is it", "the day" ],
 		"requiresexact": false
-	}
+	},
+        {       
+                "name": "intent_victor_reboot",
+                "keyphrases": ["reboot", "reboot time", "restart" ],
+                "requiresexact": false
+        },
+        {       
+                "name": "intent_victor_shutdown", 
+                "keyphrases" : ["turn off", "power off", "shutdown", "deactivate", "I am satisfied with my care", "I'm satisfied with my care" ],
+                "requiresexact": false
+        }
 ]
