@@ -18,8 +18,14 @@ import (
 
 var Name string = "whisper.cpp"
 
-var context *whisper.Context
-var params whisper.Params
+const numContexts = 2
+
+type whisperContext struct {
+	ctx    *whisper.Context
+	params whisper.Params
+}
+
+var contextPool chan *whisperContext
 
 func padPCM(data []byte) []byte {
 	const sampleRate = 16000
@@ -39,6 +45,24 @@ func padPCM(data []byte) []byte {
 	paddingBytes := make([]byte, paddingSamples*bytesPerSample)
 
 	return append(data, paddingBytes...)
+}
+
+func makeContext(modelPath string, sttLanguage string) (*whisperContext, error) {
+	ctx := whisper.Whisper_init(modelPath)
+	if ctx == nil {
+		return nil, fmt.Errorf("failed to initialize whisper context")
+	}
+	params := ctx.Whisper_full_default_params(whisper.SamplingStrategy(whisper.SAMPLING_GREEDY))
+	params.SetTranslate(false)
+	params.SetPrintSpecial(false)
+	params.SetPrintProgress(false)
+	params.SetPrintRealtime(false)
+	params.SetPrintTimestamps(false)
+	params.SetThreads(runtime.NumCPU())
+	params.SetNoContext(true)
+	params.SetSingleSegment(true)
+	params.SetLanguage(ctx.Whisper_lang_id(sttLanguage))
+	return &whisperContext{ctx: ctx, params: params}, nil
 }
 
 func Init() error {
@@ -61,33 +85,30 @@ func Init() error {
 		fmt.Println("Model does not exist: " + modelPath)
 		return err
 	}
-	fmt.Println("Opening Whisper model (" + modelPath + ")")
-	//fmt.Println(whisper.Whisper_print_system_info())
-	context = whisper.Whisper_init(modelPath)
-	params = context.Whisper_full_default_params(whisper.SamplingStrategy(whisper.SAMPLING_GREEDY))
-	params.SetTranslate(false)
-	params.SetPrintSpecial(false)
-	params.SetPrintProgress(false)
-	params.SetPrintRealtime(false)
-	params.SetPrintTimestamps(false)
-	params.SetThreads(runtime.NumCPU())
-	params.SetNoContext(true)
-	params.SetSingleSegment(true)
-	params.SetLanguage(context.Whisper_lang_id(sttLanguage))
+	fmt.Println("Opening Whisper model (%s), creating %d contexts\n", modelPath, numContexts)
+
+	contextPool = make(chan *whisperContext, numContexts)
+	for i := 0; i < numContexts; i++ {
+		wc, err := makeContext(modelPath, sttLanguage)
+		if err != nil {
+			return err
+		}
+		contextPool <- wc
+		fmt.Printf("Created whisper context %d/%d\n", i+1, numContexts)
+	}
+
 	return nil
 }
 
 func STT(req sr.SpeechRequest) (string, error) {
 	fmt.Println("(Bot " + req.Device + ", Whisper) Processing...")
-	speechIsDone := false
-	var err error
 	for {
-		_, err = req.GetNextStreamChunk()
+		_, err := req.GetNextStreamChunk()
 		if err != nil {
 			return "", err
 		}
 		// has to be split into 320 []byte chunks for VAD
-		speechIsDone, _ = req.DetectEndOfSpeech()
+		speechIsDone, _ := req.DetectEndOfSpeech()
 		if speechIsDone {
 			break
 		}
@@ -102,9 +123,12 @@ func STT(req sr.SpeechRequest) (string, error) {
 }
 
 func process(data []float32) (string, error) {
+	wc := <-contextPool
+	defer func() { contextPool <- wc }()
+
 	var transcribedText string
-	context.Whisper_full(params, data, nil, func(_ int) {
-		transcribedText = strings.TrimSpace(context.Whisper_full_get_segment_text(0))
+	wc.ctx.Whisper_full(wc.params, data, nil, func(_ int) {
+		transcribedText = strings.TrimSpace(wc.ctx.Whisper_full_get_segment_text(0))
 	}, nil)
 	return transcribedText, nil
 }
