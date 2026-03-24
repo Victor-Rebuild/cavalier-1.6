@@ -14,7 +14,7 @@ import (
 
 var cantProcessIntent string = "Houndify returned no response. Please try again later."
 
-var youFuckedUp string = "You fucked up, your robot has been blacklisted from this server, goodbye."
+var youFuckedUp string = "Your robot has been blacklisted from this server."
 
 func (s *Server) ProcessIntentGraph(req *vtt.IntentGraphRequest) (*vtt.IntentGraphResponse, error) {
 	requestStartTime := time.Now()
@@ -33,7 +33,6 @@ func (s *Server) ProcessIntentGraph(req *vtt.IntentGraphRequest) (*vtt.IntentGra
 		fmt.Println(youFuckedUp)
 		ttr.KnowledgeGraphResponseIG(req, youFuckedUp, transcribedText)
 
-		fmt.Println("Houndify returned empty or error response")
 		return nil, fmt.Errorf("device is blacklisted")
 	}
 
