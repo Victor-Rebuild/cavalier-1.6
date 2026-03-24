@@ -14,22 +14,23 @@ func whisperSpeechtoNum(input string) string {
 	// ex. "set a timer for 10 minutes and 11 seconds"
 	totalSeconds := 0
 
+	hourPattern := regexp.MustCompile(`(\d+)\s*hour`)
 	minutePattern := regexp.MustCompile(`(\d+)\s*minute`)
 	secondPattern := regexp.MustCompile(`(\d+)\s*second`)
 
-	minutesMatches := minutePattern.FindStringSubmatch(input)
-	secondsMatches := secondPattern.FindStringSubmatch(input)
-
-	if len(minutesMatches) > 1 {
-		minutes, err := strconv.Atoi(minutesMatches[1])
-		if err == nil {
-			totalSeconds += minutes * 60
+	if m := hourPattern.FindStringSubmatch(input); len(m) > 1 {
+		if v, err := strconv.Atoi(m[1]); err == nil {
+			totalSeconds += v * 3600
 		}
 	}
-	if len(secondsMatches) > 1 {
-		seconds, err := strconv.Atoi(secondsMatches[1])
-		if err == nil {
-			totalSeconds += seconds
+	if m := minutePattern.FindStringSubmatch(input); len(m) > 1 {
+		if v, err := strconv.Atoi(m[1]); err == nil {
+			totalSeconds += v * 60
+		}
+	}
+	if m := secondPattern.FindStringSubmatch(input); len(m) > 1 {
+		if v, err := strconv.Atoi(m[1]); err == nil {
+			totalSeconds += v
 		}
 	}
 
