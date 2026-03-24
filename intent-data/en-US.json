@@ -61,7 +61,7 @@
 	},
 		{	
 		"name": "intent_greeting_goodbye", 
-		"keyphrases" : ["good bye", "good by", "good buy", "goodbye" ],
+		"keyphrases" : ["good bye", "bye", "good by", "good buy", "goodbye" ],
 		"requiresexact": false
 	},
 	{	
