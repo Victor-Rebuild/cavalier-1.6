@@ -12,7 +12,7 @@ import (
 	"cavalier/pkg/vars"
 )
 
-var cantProcessIntent string = "Houndify returned no response. Please try again later."
+var cantProcessIntent string = ""
 
 var youFuckedUp string = "Your robot has been blacklisted from this server."
 
@@ -85,7 +85,7 @@ func (s *Server) ProcessIntentGraph(req *vtt.IntentGraphRequest) (*vtt.IntentGra
 
 				if apiResponse != "" && !strings.Contains(apiResponse, "not enabled") && !strings.Contains(apiResponse, "Knowledge graph is not enabled") && !strings.Contains(apiResponse, "Didn't get that!") {
 					if apiResponse == "" {
-						fmt.Println("Houndify intent graph returned error/empty, I'm prolly out of credits again, send the message")
+						fmt.Println("Houndify intent graph returned error/empty, cancelling response")
 						ttr.KnowledgeGraphResponseIG(req, cantProcessIntent, transcribedText)
 						totalDuration := time.Since(requestStartTime)
 						fmt.Printf("Bot %s - Total request time: %v\n", req.Device, totalDuration)

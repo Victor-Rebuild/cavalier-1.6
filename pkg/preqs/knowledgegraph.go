@@ -18,7 +18,7 @@ import (
 var HKGclient houndify.Client
 var HoundEnable bool = true
 
-var cantProcessKnowledge string = "Houndify returned no response. Please try again later."
+var cantProcessKnowledge string = ""
 
 func ParseSpokenResponse(serverResponseJSON string) (string, error) {
 	result := make(map[string]interface{})
@@ -87,8 +87,8 @@ func (s *Server) ProcessKnowledgeGraph(req *vtt.KnowledgeGraphRequest) (*vtt.Kno
 
 		// Check if response is empty or contains error
 		var spokenResponse string
-		if apiResponse == "" || strings.TrimSpace(apiResponse) == "" {
-			fmt.Println("Houndify knowledge graph returned error/empty, I'm prolly out of credits again, send the message")
+		if apiResponse == "" || strings.TrimSpace(apiResponse) == "" || strings.Contains(apiResponse, "Didn't get that!") {
+			fmt.Println("Houndify knowledge graph returned error/empty, cancelling response")
 			spokenResponse = cantProcessKnowledge
 		} else {
 			spokenResponse = apiResponse
