@@ -59,8 +59,9 @@ type apiConfig struct {
 		Port     string `json:"port"`
 	} `json:"server"`
 	Blacklist struct {
-		Enable bool     `json:"enable"`
-		ESNs   []string `json:"esns"`
+		Enable        bool     `json:"enable"`
+		EnableStealth bool     `json:"enableStealth"`
+		ESNs          []string `json:"esns"`
 	} `json:"blacklist"`
 	HasReadFromEnv   bool `json:"hasreadfromenv"`
 	PastInitialSetup bool `json:"pastinitialsetup"`
@@ -94,6 +95,14 @@ func IsESNBlacklisted(esn string) bool {
 	}
 
 	return false
+}
+
+func UseStealthBlacklist() bool {
+	if !APIConfig.Blacklist.EnableStealth {
+		return false
+	}
+
+	return true
 }
 
 func LoadIntents() ([]JsonIntent, error) {

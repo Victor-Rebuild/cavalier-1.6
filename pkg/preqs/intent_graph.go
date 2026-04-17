@@ -27,13 +27,16 @@ func (s *Server) ProcessIntentGraph(req *vtt.IntentGraphRequest) (*vtt.IntentGra
 	// Check if ESN is blacklisted
 	if vars.IsESNBlacklisted(req.Device) {
 		fmt.Println("Blocked request from blacklisted ESN: " + req.Device)
-		InitKnowledge() // Errors without this for whatever reason even though I think it should be inited already
-
 		fmt.Println("This person fucked up")
-		fmt.Println(youFuckedUp)
-		ttr.KnowledgeGraphResponseIG(req, youFuckedUp, transcribedText)
 
-		return nil, fmt.Errorf("device is blacklisted")
+		if !vars.UseStealthBlacklist() {
+			InitKnowledge() // Errors without this for whatever reason even though I think it should be inited already
+			fmt.Println(youFuckedUp)
+			ttr.KnowledgeGraphResponseIG(req, youFuckedUp, transcribedText)
+		}
+		fmt.Println("device is blacklisted")
+
+		return nil, nil
 	}
 
 	if !isSti {
