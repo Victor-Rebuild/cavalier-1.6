@@ -142,12 +142,20 @@ func ParamChecker(req interface{}, intent string, speechText string, botSerial s
 	} else if strings.Contains(intent, "intent_weather_extend") {
 		isParam = true
 		newIntent = intent
-		condition, is_forecast, local_datetime, speakable_location_string, temperature, temperature_unit := weatherParser(speechText, botLocation, botUnits)
+		condition, is_forecast, local_datetime, speakable_location_string, temperature, temperature_unit, raw_condition := weatherParser(speechText, botLocation, botUnits)
 		if local_datetime == "test" {
 			newIntent = "intent_system_unmatched"
 			isParam = false
 		} else {
-			intentParams = map[string]string{"condition": condition, "is_forecast": is_forecast, "local_datetime": local_datetime, "speakable_location_string": speakable_location_string, "temperature": temperature, "temperature_unit": temperature_unit}
+			intentParams = map[string]string{
+				"condition":                 condition,
+				"is_forecast":               is_forecast,
+				"local_datetime":            local_datetime,
+				"speakable_location_string": speakable_location_string,
+				"temperature":               temperature,
+				"temperature_unit":          temperature_unit,
+				"raw_condition":             raw_condition,
+			}
 		}
 	} else if strings.Contains(intent, "intent_imperative_volumelevel_extend") {
 		isParam = true
@@ -436,8 +444,16 @@ func ParamCheckerSlotsEnUS(req interface{}, intent string, slots map[string]stri
 	} else if strings.Contains(intent, "intent_weather_extend") {
 		isParam = true
 		newIntent = intent
-		condition, is_forecast, local_datetime, speakable_location_string, temperature, temperature_unit := weatherParser("what's the weather", botLocation, botUnits)
-		intentParams = map[string]string{"condition": condition, "is_forecast": is_forecast, "local_datetime": local_datetime, "speakable_location_string": speakable_location_string, "temperature": temperature, "temperature_unit": temperature_unit}
+		condition, is_forecast, local_datetime, speakable_location_string, temperature, temperature_unit, raw_condition := weatherParser("what's the weather", botLocation, botUnits)
+		intentParams = map[string]string{
+			"condition":                 condition,
+			"is_forecast":               is_forecast,
+			"local_datetime":            local_datetime,
+			"speakable_location_string": speakable_location_string,
+			"temperature":               temperature,
+			"temperature_unit":          temperature_unit,
+			"raw_condition":             raw_condition,
+		}
 	} else {
 		if intentParam == "" {
 			newIntent = intent
@@ -541,8 +557,16 @@ func prehistoricParamChecker(req interface{}, intent string, speechText string) 
 	} else if strings.Contains(intent, "intent_weather_extend") {
 		isParam = true
 		newIntent = intent
-		condition, is_forecast, local_datetime, speakable_location_string, temperature, temperature_unit := weatherParser(speechText, botLocation, botUnits)
-		intentParams = map[string]string{"condition": condition, "is_forecast": is_forecast, "local_datetime": local_datetime, "speakable_location_string": speakable_location_string, "temperature": temperature, "temperature_unit": temperature_unit}
+		condition, is_forecast, local_datetime, speakable_location_string, temperature, temperature_unit, raw_condition := weatherParser(speechText, botLocation, botUnits)
+		intentParams = map[string]string{
+			"condition":                 condition,
+			"is_forecast":               is_forecast,
+			"local_datetime":            local_datetime,
+			"speakable_location_string": speakable_location_string,
+			"temperature":               temperature,
+			"temperature_unit":          temperature_unit,
+			"raw_condition":             raw_condition,
+		}
 	} else if strings.Contains(intent, "intent_imperative_volumelevel_extend") {
 		isParam = true
 		newIntent = intent

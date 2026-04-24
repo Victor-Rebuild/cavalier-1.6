@@ -69,6 +69,9 @@ func corsMiddleware(next http.Handler) http.Handler {
 func AccountsAPI(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(r.URL.Path)
 	switch r.URL.Path {
+	// case "/ok":
+	// 	w.WriteHeader(http.StatusOK)
+	// 	return
 	case "/v1/sessions":
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
@@ -155,6 +158,8 @@ func AccountsAPI(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	http.Handle("/v1/", maxRequestSizeMiddleware(rateLimitMiddleware(corsMiddleware(http.HandlerFunc(AccountsAPI)))))
+	handler := maxRequestSizeMiddleware(rateLimitMiddleware(corsMiddleware(http.HandlerFunc(AccountsAPI))))
+	http.Handle("/v1/", handler)
+	http.Handle("/ok", handler)
 	http.ListenAndServe(":8080", nil)
 }

@@ -159,9 +159,10 @@ type openWeatherMapForecastAPIResponseStruct struct {
 	List    []openWeatherMapAPIResponseStruct `json:"list"`
 }
 
-func getWeather(location string, botUnits string, hoursFromNow int) (string, string, string, string, string, string) {
+func getWeather(location string, botUnits string, hoursFromNow int) (string, string, string, string, string, string, string) {
 	var weatherEnabled bool
 	var condition string
+	var raw_condition string
 	var is_forecast string
 	var local_datetime string
 	var speakable_location_string string
@@ -209,6 +210,7 @@ func getWeather(location string, botUnits string, hoursFromNow int) (string, str
 			var weatherStruct weatherAPIResponseStruct
 			json.Unmarshal([]byte(weatherResponse), &weatherStruct)
 			var matchedValue bool
+			raw_condition = weatherStruct.Current.Condition.Text
 			for _, b := range weatherAPICladMap {
 				if b.APIValue == weatherStruct.Current.Condition.Text {
 					condition = b.CladType
@@ -249,7 +251,7 @@ func getWeather(location string, botUnits string, hoursFromNow int) (string, str
 				speakable_location_string = location // preferably the processed location
 				temperature = "120"
 				temperature_unit = "C"
-				return condition, is_forecast, local_datetime, speakable_location_string, temperature, temperature_unit
+				return condition, is_forecast, local_datetime, speakable_location_string, temperature, temperature_unit, ""
 			}
 			Lat := fmt.Sprintf("%f", geoCodingInfoStruct[0].Lat)
 			Lon := fmt.Sprintf("%f", geoCodingInfoStruct[0].Lon)
@@ -342,10 +344,10 @@ func getWeather(location string, botUnits string, hoursFromNow int) (string, str
 		temperature = "120"
 		temperature_unit = "C"
 	}
-	return condition, is_forecast, local_datetime, speakable_location_string, temperature, temperature_unit
+	return condition, is_forecast, local_datetime, speakable_location_string, temperature, temperature_unit, raw_condition
 }
 
-func weatherParser(speechText string, botLocation string, botUnits string) (string, string, string, string, string, string) {
+func weatherParser(speechText string, botLocation string, botUnits string) (string, string, string, string, string, string, string) {
 	var specificLocation bool
 	var apiLocation string
 	var speechLocation string
@@ -395,6 +397,6 @@ func weatherParser(speechText string, botLocation string, botUnits string) (stri
 		apiLocation = botLocation
 	}
 	// call to weather API
-	condition, is_forecast, local_datetime, speakable_location_string, temperature, temperature_unit := getWeather(apiLocation, botUnits, hoursFromNow)
-	return condition, is_forecast, local_datetime, speakable_location_string, temperature, temperature_unit
+	condition, is_forecast, local_datetime, speakable_location_string, temperature, temperature_unit, raw_condition := getWeather(apiLocation, botUnits, hoursFromNow)
+	return condition, is_forecast, local_datetime, speakable_location_string, temperature, temperature_unit, raw_condition
 }

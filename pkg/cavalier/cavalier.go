@@ -92,5 +92,6 @@ func InitCavalier(InitFunc func() error, SttHandler interface{}, voiceProcessor 
 	}
 	go srv.Transport().Serve(listenerOne)
 	http.HandleFunc("/v1/", accounts.AccountsAPI)
+	http.HandleFunc("/ok", accounts.AccountsAPI)
 	http.ListenAndServe(":8080", nil)
 }
