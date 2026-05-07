@@ -196,7 +196,7 @@
 	},
 	{	
 		"name": "intent_imperative_love",
-		"keyphrases" : ["love you", "dove you", "i love you", "thank you", "thanks" ],
+		"keyphrases" : ["love you", "dove you", "i love you" ],
 		"requiresexact": false
 	},
 	{	
@@ -292,6 +292,11 @@
         {       
                 "name": "intent_victor_shutdown", 
                 "keyphrases" : ["turn off", "power off", "shutdown", "deactivate", "I am satisfied with my care", "I'm satisfied with my care" ],
+                "requiresexact": false
+        },
+        {       
+                "name": "intent_thank_you", 
+                "keyphrases" : ["thanks", "thank you" ],
                 "requiresexact": false
         }
 ]

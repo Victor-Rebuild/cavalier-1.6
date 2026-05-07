@@ -178,7 +178,7 @@ func ParamChecker(req interface{}, intent string, speechText string, botSerial s
 		} else if strings.Contains(speechText, lcztn.GetText(lcztn.STR_VOLUME_MUTE)) || strings.Contains(speechText, lcztn.GetText(lcztn.STR_VOLUME_NOTHING)) || strings.Contains(speechText, lcztn.GetText(lcztn.STR_VOLUME_SILENT)) || strings.Contains(speechText, lcztn.GetText(lcztn.STR_VOLUME_OFF)) || strings.Contains(speechText, lcztn.GetText(lcztn.STR_VOLUME_ZERO)) {
 			// there is no VOLUME_0 :(
 			intentParam = "volume_level"
-			intentParamValue = "VOLUME_1"
+			intentParamValue = "VOLUME_0"
 		} else {
 			intentParam = "volume_level"
 			intentParamValue = "VOLUME_1"
@@ -588,7 +588,7 @@ func prehistoricParamChecker(req interface{}, intent string, speechText string) 
 		} else if strings.Contains(speechText, lcztn.GetText(lcztn.STR_VOLUME_MUTE)) || strings.Contains(speechText, lcztn.GetText(lcztn.STR_VOLUME_NOTHING)) || strings.Contains(speechText, lcztn.GetText(lcztn.STR_VOLUME_SILENT)) || strings.Contains(speechText, lcztn.GetText(lcztn.STR_VOLUME_OFF)) || strings.Contains(speechText, lcztn.GetText(lcztn.STR_VOLUME_ZERO)) {
 			// there is no VOLUME_0 :(
 			intentParam = "volume_level"
-			intentParamValue = "VOLUME_1"
+			intentParamValue = "VOLUME_0"
 		} else {
 			intentParam = "volume_level"
 			intentParamValue = "VOLUME_1"
