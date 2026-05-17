@@ -77,7 +77,7 @@ func (s *Server) ProcessIntentGraph(req *vtt.IntentGraphRequest) (*vtt.IntentGra
 	if !successMatched {
 		// If knowledge graph is enabled, send to Houndify
 		if vars.APIConfig.Knowledge.Enable {
-			if len([]rune(transcribedText)) >= 8 {
+			if len([]rune(transcribedText)) >= 8 && !strings.Contains(transcribedText, "**") {
 				fmt.Println("No intent matched, forwarding to Houndify for device " + req.Device + "...")
 				InitKnowledge() // Errors without this for whatever reason even though I think it should be inited already
 
