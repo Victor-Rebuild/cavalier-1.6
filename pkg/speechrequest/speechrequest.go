@@ -244,8 +244,9 @@ func (req *SpeechRequest) GetNextStreamChunk() ([]byte, error) {
 			return nil, chunkErr
 		}
 		req.MicData = append(req.MicData, chunk.InputAudio...)
-		req.DecodedMicData = append(req.DecodedMicData, req.OpusDecode(chunk.InputAudio)...)
-		req.FilteredMicData = append(req.FilteredMicData, req.Aproc.ProcessAudio(req.OpusDecode(chunk.InputAudio))...)
+		decodedChunk := req.OpusDecode(chunk.InputAudio)
+		req.DecodedMicData = append(req.DecodedMicData, decodedChunk...)
+		req.FilteredMicData = append(req.FilteredMicData, req.Aproc.ProcessAudio(decodedChunk)...)
 		dataReturn := req.DecodedMicData[req.PrevLen:]
 		req.LastAudioChunk = req.FilteredMicData[req.PrevLen:]
 		req.PrevLen = len(req.DecodedMicData)
@@ -258,8 +259,9 @@ func (req *SpeechRequest) GetNextStreamChunk() ([]byte, error) {
 			return nil, chunkErr
 		}
 		req.MicData = append(req.MicData, chunk.InputAudio...)
-		req.DecodedMicData = append(req.DecodedMicData, req.OpusDecode(chunk.InputAudio)...)
-		req.FilteredMicData = append(req.FilteredMicData, req.Aproc.ProcessAudio(req.OpusDecode(chunk.InputAudio))...)
+		decodedChunk := req.OpusDecode(chunk.InputAudio)
+		req.DecodedMicData = append(req.DecodedMicData, decodedChunk...)
+		req.FilteredMicData = append(req.FilteredMicData, req.Aproc.ProcessAudio(decodedChunk)...)
 		dataReturn := req.DecodedMicData[req.PrevLen:]
 		req.LastAudioChunk = req.FilteredMicData[req.PrevLen:]
 		req.PrevLen = len(req.DecodedMicData)
@@ -275,8 +277,9 @@ func (req *SpeechRequest) GetNextStreamChunk() ([]byte, error) {
 			return nil, chunkErr
 		}
 		req.MicData = append(req.MicData, chunk.InputAudio...)
-		req.DecodedMicData = append(req.DecodedMicData, req.OpusDecode(chunk.InputAudio)...)
-		req.FilteredMicData = append(req.FilteredMicData, req.Aproc.ProcessAudio(req.OpusDecode(chunk.InputAudio))...)
+		decodedChunk := req.OpusDecode(chunk.InputAudio)
+		req.DecodedMicData = append(req.DecodedMicData, decodedChunk...)
+		req.FilteredMicData = append(req.FilteredMicData, req.Aproc.ProcessAudio(decodedChunk)...)
 		dataReturn := req.DecodedMicData[req.PrevLen:]
 		req.LastAudioChunk = req.FilteredMicData[req.PrevLen:]
 		req.PrevLen = len(req.DecodedMicData)

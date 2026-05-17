@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"sync"
 
 	sr "cavalier/pkg/speechrequest"
 
@@ -18,6 +19,7 @@ import (
 
 var Name string = "whisper.cpp"
 
+var m sync.Mutex
 var context *whisper.Context
 var params whisper.Params
 
@@ -64,6 +66,7 @@ func Init() error {
 	fmt.Println("Opening Whisper model (" + modelPath + ")")
 	//fmt.Println(whisper.Whisper_print_system_info())
 	context = whisper.Whisper_init(modelPath)
+
 	params = context.Whisper_full_default_params(whisper.SamplingStrategy(whisper.SAMPLING_GREEDY))
 	params.SetTranslate(false)
 	params.SetPrintSpecial(false)
@@ -102,6 +105,8 @@ func STT(req sr.SpeechRequest) (string, error) {
 }
 
 func process(data []float32) (string, error) {
+	m.Lock()
+	defer m.Unlock()
 	var transcribedText string
 	context.Whisper_full(params, data, nil, func(_ int) {
 		transcribedText = strings.TrimSpace(context.Whisper_full_get_segment_text(0))
