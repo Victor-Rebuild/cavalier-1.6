@@ -92,12 +92,12 @@ func STT(req sr.SpeechRequest) (string, error) {
 			return "", err
 		}
 		// has to be split into 320 []byte chunks for VAD
-		speechIsDone, _ = req.DetectEndOfSpeech()
+		speechIsDone, _ = req.DetectEndOfSpeechSilero()
 		if speechIsDone {
 			break
 		}
 	}
-	transcribedText, err := process(BytesToFloat32Buffer(padPCM(req.FilteredMicData)))
+	transcribedText, err := process(BytesToFloat32Buffer(padPCM(req.DecodedMicData)))
 	if err != nil {
 		return "", err
 	}
