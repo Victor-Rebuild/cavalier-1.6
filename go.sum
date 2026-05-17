@@ -282,6 +282,8 @@ github.com/jtolds/gls v4.20.0+incompatible/go.mod h1:QJZ7F/aHp+rZTRtaJ1ow/lLfFfV
 github.com/julienschmidt/httprouter v1.2.0/go.mod h1:SYymIcj16QtmaHHD7aYtjjsJG7VTCxuUUipMqKk8s4w=
 github.com/karrick/godirwalk v1.8.0/go.mod h1:H5KPZjojv4lE+QYImBI8xVtrBRgYrIVsaRPx4tDPEn4=
 github.com/karrick/godirwalk v1.10.3/go.mod h1:RoGL9dQei4vP9ilrpETWE8CLOZ1kiN0LhBygSwrAsHA=
+github.com/kercre123/silero-go v0.0.0-20260517231055-5e4b417f00cd h1:k9RqsZvHtgvlnxafIYy1QaxEeUdo9fDmVs4IXeMioi4=
+github.com/kercre123/silero-go v0.0.0-20260517231055-5e4b417f00cd/go.mod h1:CPbzKbZSXjvuErRrnqE9jHyAiTLX2ti/GpUonr7Bn+A=
 github.com/kercre123/vosk-api/go v1.0.2 h1:NDJUNv2ddw128amiVZ2xE2gKfKHeBRRhboSh+yiH6Wg=
 github.com/kercre123/vosk-api/go v1.0.2/go.mod h1:oVZG/VFmg23uNDzjShcw7UhZHWYG2zXgBm5FqioE2Ao=
 github.com/kercre123/whisper.cpp/bindings/go v0.0.0-20250602164512-60cd96acff3a h1:QxV7Hk6yeJ38v/NK+n0h3+LPilLHI2x8in7Z6fAH2XU=
@@ -366,8 +368,6 @@ github.com/pkg/errors v0.8.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINE
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pkg/profile v1.5.0/go.mod h1:qBsxPvzyUincmltOk6iyRVxHYg4adc0OFOv72ZdLa18=
-github.com/plandem/silero-go v0.0.0-20250620115534-a4c356bf0923 h1:iaC3oEuJEUgNOKKx3rtkXmh1TrXV/ks7pgWXO280bdQ=
-github.com/plandem/silero-go v0.0.0-20250620115534-a4c356bf0923/go.mod h1:TvdFRS0pUXzL9aFR4qWt/42+wQfLbvJepQ4p5IZC05A=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/posener/complete v1.1.1/go.mod h1:em0nMJCgc9GFtwrmVmEMR/ZL6WyhyjMBndrE9hABlRI=

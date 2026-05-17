@@ -7,13 +7,13 @@ require (
 	github.com/digital-dream-labs/hugh v0.0.0-20210210154335-f4159b9fcd5f
 	github.com/digital-dream-labs/opus-go v0.0.0-20201230195736-934a8a9e0a1e
 	github.com/google/uuid v1.6.0
+	github.com/kercre123/silero-go v0.0.0-20260517231055-5e4b417f00cd
 	github.com/kercre123/vosk-api/go v1.0.2
 	github.com/kercre123/whisper.cpp/bindings/go v0.0.0-20250602164512-60cd96acff3a
 	github.com/kercre123/wire-pod/chipper v1.5.6
 	github.com/mattn/go-sqlite3 v1.14.24
 	github.com/maxhawkins/go-webrtcvad v0.0.0-20210121163624-be60036f3083
 	github.com/pkg/errors v0.9.1
-	github.com/plandem/silero-go v0.0.0-20250620115534-a4c356bf0923
 	github.com/soundhound/houndify-sdk-go v0.3.5
 	golang.org/x/crypto v0.28.0
 	golang.org/x/time v0.0.0-20191024005414-555d28b269f0

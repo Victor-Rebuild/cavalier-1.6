@@ -14,9 +14,9 @@ import (
 
 	pb "github.com/digital-dream-labs/api/go/chipperpb"
 	"github.com/digital-dream-labs/opus-go/opus"
+	"github.com/kercre123/silero-go/onnx"
+	"github.com/kercre123/silero-go/vad"
 	"github.com/maxhawkins/go-webrtcvad"
-	"github.com/plandem/silero-go/onnx"
-	"github.com/plandem/silero-go/vad"
 )
 
 // one type and many functions for dealing with intent, intent-graph, and knowledge-graph requests
