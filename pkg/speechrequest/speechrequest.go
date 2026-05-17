@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"time"
 
 	"cavalier/pkg/audioproc"
 	"cavalier/pkg/vtt"
@@ -14,6 +15,8 @@ import (
 	pb "github.com/digital-dream-labs/api/go/chipperpb"
 	"github.com/digital-dream-labs/opus-go/opus"
 	"github.com/maxhawkins/go-webrtcvad"
+	"github.com/plandem/silero-go/onnx"
+	"github.com/plandem/silero-go/vad"
 )
 
 // one type and many functions for dealing with intent, intent-graph, and knowledge-graph requests
@@ -21,6 +24,7 @@ import (
 
 var debugWriteFile bool = false
 var debugFile *os.File
+var sileroModel *vad.Model
 
 type SpeechRequest struct {
 	Device          string
@@ -38,6 +42,8 @@ type SpeechRequest struct {
 	InactiveFrames  int
 	ActiveFrames    int
 	VADInst         *webrtcvad.VAD
+	SileroVADInst   *vad.Detector
+	SileroDone      bool
 	LastAudioChunk  []byte
 	IsOpus          bool
 	OpusStream      *opus.OggStream
@@ -106,6 +112,29 @@ func BytesToIntVAD(stream opus.OggStream, data []byte, die bool, isOpus bool) []
 	}
 }
 
+func init() {
+	err := onnx.Init("./silero/libonnxruntime.so")
+	if err != nil {
+		println("couldn't load onnx:", err)
+		os.Exit(1)
+	}
+	sileroModel, err = vad.NewModel(16000, "./silero/silero_vad.onnx")
+	if err != nil {
+		println("couldn't load vad model:", err)
+		os.Exit(1)
+	}
+	println("loaded vad")
+}
+
+func byteToFloat32(b []byte) []float32 {
+	out := make([]float32, len(b)/2)
+	for i := range out {
+		s := int16(binary.LittleEndian.Uint16(b[i*2:]))
+		out[i] = float32(s) / 32768.0
+	}
+	return out
+}
+
 // Uses VAD to detect when the user stops speaking
 func (req *SpeechRequest) DetectEndOfSpeech() (bool, bool) {
 	// changes InactiveFrames and ActiveFrames in req
@@ -131,6 +160,31 @@ func (req *SpeechRequest) DetectEndOfSpeech() (bool, bool) {
 	if req.ActiveFrames < 5 {
 		return false, false
 	}
+	return false, true
+}
+
+func (req *SpeechRequest) DetectEndOfSpeechSilero() (bool, bool) {
+	if req.SileroVADInst == nil {
+		var err error
+		req.SileroVADInst, err = vad.NewDetector(sileroModel, vad.Config{
+			SpeechThreshold: 0.5,
+			MinSilence:      100 * time.Millisecond,
+			SpeechPad:       30 * time.Millisecond,
+		}, func(start, end vad.SampleOffset) {
+			if end != -1 {
+				println("silero done")
+				req.SileroDone = true
+			}
+		})
+		if err != nil {
+			println("failed to make vad detector: ", err)
+		}
+		println("silero vad instance made")
+	}
+	if req.SileroDone {
+		return true, true
+	}
+	req.SileroVADInst.Detect(byteToFloat32(req.LastAudioChunk))
 	return false, true
 }
 
@@ -248,7 +302,7 @@ func (req *SpeechRequest) GetNextStreamChunk() ([]byte, error) {
 		req.DecodedMicData = append(req.DecodedMicData, decodedChunk...)
 		req.FilteredMicData = append(req.FilteredMicData, req.Aproc.ProcessAudio(decodedChunk)...)
 		dataReturn := req.DecodedMicData[req.PrevLen:]
-		req.LastAudioChunk = req.FilteredMicData[req.PrevLen:]
+		req.LastAudioChunk = req.DecodedMicData[req.PrevLen:]
 		req.PrevLen = len(req.DecodedMicData)
 		return dataReturn, nil
 	} else if str, ok := req.Stream.(pb.ChipperGrpc_StreamingIntentGraphServer); ok {
@@ -263,7 +317,7 @@ func (req *SpeechRequest) GetNextStreamChunk() ([]byte, error) {
 		req.DecodedMicData = append(req.DecodedMicData, decodedChunk...)
 		req.FilteredMicData = append(req.FilteredMicData, req.Aproc.ProcessAudio(decodedChunk)...)
 		dataReturn := req.DecodedMicData[req.PrevLen:]
-		req.LastAudioChunk = req.FilteredMicData[req.PrevLen:]
+		req.LastAudioChunk = req.DecodedMicData[req.PrevLen:]
 		req.PrevLen = len(req.DecodedMicData)
 		if debugWriteFile {
 			debugFile.Write(chunk.InputAudio)
@@ -281,7 +335,7 @@ func (req *SpeechRequest) GetNextStreamChunk() ([]byte, error) {
 		req.DecodedMicData = append(req.DecodedMicData, decodedChunk...)
 		req.FilteredMicData = append(req.FilteredMicData, req.Aproc.ProcessAudio(decodedChunk)...)
 		dataReturn := req.DecodedMicData[req.PrevLen:]
-		req.LastAudioChunk = req.FilteredMicData[req.PrevLen:]
+		req.LastAudioChunk = req.DecodedMicData[req.PrevLen:]
 		req.PrevLen = len(req.DecodedMicData)
 		return dataReturn, nil
 	}

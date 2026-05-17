@@ -13,6 +13,7 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.24
 	github.com/maxhawkins/go-webrtcvad v0.0.0-20210121163624-be60036f3083
 	github.com/pkg/errors v0.9.1
+	github.com/plandem/silero-go v0.0.0-20250620115534-a4c356bf0923
 	github.com/soundhound/houndify-sdk-go v0.3.5
 	golang.org/x/crypto v0.28.0
 	golang.org/x/time v0.0.0-20191024005414-555d28b269f0
@@ -43,6 +44,7 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.7.1 // indirect
 	github.com/subosito/gotenv v1.2.0 // indirect
+	github.com/yalue/onnxruntime_go v1.30.1 // indirect
 	golang.org/x/image v0.10.0 // indirect
 	golang.org/x/net v0.22.0 // indirect
 	golang.org/x/sys v0.26.0 // indirect
