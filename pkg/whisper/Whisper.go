@@ -76,6 +76,8 @@ func Init() error {
 	params.SetThreads(runtime.NumCPU())
 	params.SetNoContext(true)
 	params.SetSingleSegment(true)
+	params.SetAudioCtx(512)
+	params.SetBeamSize(1)
 	params.SetLanguage(context.Whisper_lang_id(sttLanguage))
 	return nil
 }
@@ -95,7 +97,7 @@ func STT(req sr.SpeechRequest) (string, error) {
 			break
 		}
 	}
-	transcribedText, err := process(BytesToFloat32Buffer(padPCM(req.DecodedMicData)))
+	transcribedText, err := process(BytesToFloat32Buffer(padPCM(req.FilteredMicData)))
 	if err != nil {
 		return "", err
 	}
