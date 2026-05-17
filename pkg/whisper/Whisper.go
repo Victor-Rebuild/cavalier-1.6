@@ -68,7 +68,7 @@ func Init() error {
 	context = whisper.Whisper_init(modelPath)
 
 	params = context.Whisper_full_default_params(whisper.SamplingStrategy(whisper.SAMPLING_GREEDY))
-	params.SetTranslate(false)
+	params.SetTranslate(true)
 	params.SetPrintSpecial(false)
 	params.SetPrintProgress(false)
 	params.SetPrintRealtime(false)
@@ -92,7 +92,7 @@ func STT(req sr.SpeechRequest) (string, error) {
 			return "", err
 		}
 		// has to be split into 320 []byte chunks for VAD
-		speechIsDone, _ = req.DetectEndOfSpeechSilero()
+		speechIsDone, _ = req.DetectEndOfSpeech()
 		if speechIsDone {
 			break
 		}

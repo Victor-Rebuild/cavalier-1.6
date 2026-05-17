@@ -16,7 +16,6 @@ import (
 	"github.com/digital-dream-labs/opus-go/opus"
 	"github.com/kercre123/silero-go/onnx"
 	"github.com/kercre123/silero-go/vad"
-	"github.com/maxhawkins/go-webrtcvad"
 )
 
 // one type and many functions for dealing with intent, intent-graph, and knowledge-graph requests
@@ -39,9 +38,6 @@ type SpeechRequest struct {
 	Aproc           *audioproc.AudioProcessor
 	PrevLen         int
 	PrevLenRaw      int
-	InactiveFrames  int
-	ActiveFrames    int
-	VADInst         *webrtcvad.VAD
 	SileroVADInst   *vad.Detector
 	SileroDone      bool
 	LastAudioChunk  []byte
@@ -135,35 +131,7 @@ func byteToFloat32(b []byte) []float32 {
 	return out
 }
 
-// Uses VAD to detect when the user stops speaking
 func (req *SpeechRequest) DetectEndOfSpeech() (bool, bool) {
-	// changes InactiveFrames and ActiveFrames in req
-	inactiveNumMax := 23
-	for _, chunk := range SplitVAD(req.LastAudioChunk) {
-		active, err := req.VADInst.Process(16000, chunk)
-		if err != nil {
-			fmt.Println("VAD err:")
-			fmt.Println(err)
-			return true, false
-		}
-		if active {
-			req.ActiveFrames = req.ActiveFrames + 1
-			req.InactiveFrames = 0
-		} else {
-			req.InactiveFrames = req.InactiveFrames + 1
-		}
-		if req.InactiveFrames >= inactiveNumMax && req.ActiveFrames > 18 {
-			fmt.Println("(Bot " + req.Device + ") End of speech detected.")
-			return true, true
-		}
-	}
-	if req.ActiveFrames < 5 {
-		return false, false
-	}
-	return false, true
-}
-
-func (req *SpeechRequest) DetectEndOfSpeechSilero() (bool, bool) {
 	if req.SileroVADInst == nil {
 		var err error
 		req.SileroVADInst, err = vad.NewDetector(sileroModel, vad.Config{
@@ -172,14 +140,14 @@ func (req *SpeechRequest) DetectEndOfSpeechSilero() (bool, bool) {
 			SpeechPad:       30 * time.Millisecond,
 		}, func(start, end vad.SampleOffset) {
 			if end != -1 {
-				println("silero done")
+				println("Bot " + req.Device + " End of speech detected.")
 				req.SileroDone = true
 			}
 		})
 		if err != nil {
 			println("failed to make vad detector: ", err)
+			os.Exit(1)
 		}
-		println("silero vad instance made")
 	}
 	if req.SileroDone {
 		return true, true
@@ -239,8 +207,6 @@ func ReqToSpeechRequest(req interface{}) SpeechRequest {
 	if err != nil {
 		fmt.Println(err)
 	}
-	request.VADInst, err = webrtcvad.New()
-	request.VADInst.SetMode(2)
 	if err != nil {
 		fmt.Println(err)
 	}
