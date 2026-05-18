@@ -18,4 +18,4 @@ if [[ ! -f cavalier ]]; then
     exit 1
 fi
 
-LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/vosklib:$(pwd)/whisper.cpp/build_go/src:$(pwd)/whisper.cpp/build_go/ggml/src ./cavalier
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/vosklib:$(pwd)/whisper.cpp/build_go/src:$(pwd)/whisper.cpp/build_go/ggml/src:$(pwd)/whisper.cpp/build_go/ggml/src/ggml-cuda ./cavalier

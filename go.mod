@@ -7,6 +7,7 @@ require (
 	github.com/digital-dream-labs/hugh v0.0.0-20210210154335-f4159b9fcd5f
 	github.com/digital-dream-labs/opus-go v0.0.0-20201230195736-934a8a9e0a1e
 	github.com/google/uuid v1.6.0
+	github.com/kercre123/silero-go v0.0.0-20260517231055-5e4b417f00cd
 	github.com/kercre123/vosk-api/go v1.0.2
 	github.com/kercre123/whisper.cpp/bindings/go v0.0.0-20250602164512-60cd96acff3a
 	github.com/kercre123/wire-pod/chipper v1.5.6
@@ -43,6 +44,7 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.7.1 // indirect
 	github.com/subosito/gotenv v1.2.0 // indirect
+	github.com/yalue/onnxruntime_go v1.30.1 // indirect
 	golang.org/x/image v0.10.0 // indirect
 	golang.org/x/net v0.22.0 // indirect
 	golang.org/x/sys v0.26.0 // indirect

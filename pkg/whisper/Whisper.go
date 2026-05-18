@@ -68,7 +68,7 @@ func Init() error {
 	context = whisper.Whisper_init(modelPath)
 
 	params = context.Whisper_full_default_params(whisper.SamplingStrategy(whisper.SAMPLING_GREEDY))
-	params.SetTranslate(false)
+	params.SetTranslate(true)
 	params.SetPrintSpecial(false)
 	params.SetPrintProgress(false)
 	params.SetPrintRealtime(false)
@@ -97,7 +97,7 @@ func STT(req sr.SpeechRequest) (string, error) {
 			break
 		}
 	}
-	transcribedText, err := process(BytesToFloat32Buffer(padPCM(req.FilteredMicData)))
+	transcribedText, err := process(BytesToFloat32Buffer(padPCM(req.DecodedMicData)))
 	if err != nil {
 		return "", err
 	}
