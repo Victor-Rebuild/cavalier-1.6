@@ -7,13 +7,14 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"time"
 
-	"cavalier/pkg/audioproc"
 	"cavalier/pkg/vtt"
 
 	pb "github.com/digital-dream-labs/api/go/chipperpb"
 	"github.com/digital-dream-labs/opus-go/opus"
-	"github.com/maxhawkins/go-webrtcvad"
+	"github.com/kercre123/silero-go/onnx"
+	"github.com/kercre123/silero-go/vad"
 )
 
 // one type and many functions for dealing with intent, intent-graph, and knowledge-graph requests
@@ -21,26 +22,24 @@ import (
 
 var debugWriteFile bool = false
 var debugFile *os.File
+var sileroModel *vad.Model
 
 type SpeechRequest struct {
-	Device          string
-	Session         string
-	FirstReq        []byte
-	Stream          interface{}
-	IsKG            bool
-	IsIG            bool
-	MicData         []byte
-	DecodedMicData  []byte
-	FilteredMicData []byte
-	Aproc           *audioproc.AudioProcessor
-	PrevLen         int
-	PrevLenRaw      int
-	InactiveFrames  int
-	ActiveFrames    int
-	VADInst         *webrtcvad.VAD
-	LastAudioChunk  []byte
-	IsOpus          bool
-	OpusStream      *opus.OggStream
+	Device         string
+	Session        string
+	FirstReq       []byte
+	Stream         interface{}
+	IsKG           bool
+	IsIG           bool
+	MicData        []byte
+	DecodedMicData []byte
+	PrevLen        int
+	PrevLenRaw     int
+	SileroVADInst  *vad.Detector
+	SileroDone     bool
+	LastAudioChunk []byte
+	IsOpus         bool
+	OpusStream     *opus.OggStream
 }
 
 func BytesToSamples(buf []byte) []int16 {
@@ -106,31 +105,51 @@ func BytesToIntVAD(stream opus.OggStream, data []byte, die bool, isOpus bool) []
 	}
 }
 
-// Uses VAD to detect when the user stops speaking
+func init() {
+	err := onnx.Init("./silero/libonnxruntime.so")
+	if err != nil {
+		println("couldn't load onnx:", err)
+		os.Exit(1)
+	}
+	sileroModel, err = vad.NewModel(16000, "./silero/silero_vad.onnx")
+	if err != nil {
+		println("couldn't load vad model:", err)
+		os.Exit(1)
+	}
+	println("loaded vad")
+}
+
+func byteToFloat32(b []byte) []float32 {
+	out := make([]float32, len(b)/2)
+	for i := range out {
+		s := int16(binary.LittleEndian.Uint16(b[i*2:]))
+		out[i] = float32(s) / 32768.0
+	}
+	return out
+}
+
 func (req *SpeechRequest) DetectEndOfSpeech() (bool, bool) {
-	// changes InactiveFrames and ActiveFrames in req
-	inactiveNumMax := 3
-	for _, chunk := range SplitVAD(req.LastAudioChunk) {
-		active, err := req.VADInst.Process(16000, chunk)
+	if req.SileroVADInst == nil {
+		var err error
+		req.SileroVADInst, err = vad.NewDetector(sileroModel, vad.Config{
+			SpeechThreshold: 0.5,
+			MinSilence:      100 * time.Millisecond,
+			SpeechPad:       30 * time.Millisecond,
+		}, func(start, end vad.SampleOffset) {
+			if end != -1 {
+				println("Bot " + req.Device + " End of speech detected.")
+				req.SileroDone = true
+			}
+		})
 		if err != nil {
-			fmt.Println("VAD err:")
-			fmt.Println(err)
-			return true, false
-		}
-		if active {
-			req.ActiveFrames = req.ActiveFrames + 1
-			req.InactiveFrames = 0
-		} else {
-			req.InactiveFrames = req.InactiveFrames + 1
-		}
-		if req.InactiveFrames >= inactiveNumMax && req.ActiveFrames > 15 {
-			fmt.Println("(Bot " + req.Device + ") End of speech detected.")
-			return true, true
+			println("failed to make vad detector: ", err)
+			os.Exit(1)
 		}
 	}
-	if req.ActiveFrames < 5 {
-		return false, false
+	if req.SileroDone {
+		return true, true
 	}
+	req.SileroVADInst.Detect(byteToFloat32(req.LastAudioChunk))
 	return false, true
 }
 
@@ -180,16 +199,6 @@ func ReqToSpeechRequest(req interface{}) SpeechRequest {
 	}
 	var request SpeechRequest
 	request.PrevLen = 0
-	var err error
-	request.Aproc, err = audioproc.NewAudioProcessor(16000, 550, 2)
-	if err != nil {
-		fmt.Println(err)
-	}
-	request.VADInst, err = webrtcvad.New()
-	request.VADInst.SetMode(2)
-	if err != nil {
-		fmt.Println(err)
-	}
 	if str, ok := req.(*vtt.IntentRequest); ok {
 		var req1 *vtt.IntentRequest = str
 		request.Device = req1.Device
@@ -223,10 +232,9 @@ func ReqToSpeechRequest(req interface{}) SpeechRequest {
 	if isOpus {
 		request.OpusStream = &opus.OggStream{}
 		decodedFirstReq, _ := request.OpusStream.Decode(request.FirstReq)
-		request.FirstReq = request.Aproc.ProcessAudio(decodedFirstReq)
-		request.FilteredMicData = append(request.FilteredMicData, request.FirstReq...)
+		request.FirstReq = decodedFirstReq
 		request.DecodedMicData = append(request.DecodedMicData, decodedFirstReq...)
-		request.LastAudioChunk = request.FilteredMicData[request.PrevLen:]
+		request.LastAudioChunk = request.DecodedMicData[request.PrevLen:]
 		request.PrevLen = len(request.DecodedMicData)
 		request.IsOpus = true
 	}
@@ -244,10 +252,10 @@ func (req *SpeechRequest) GetNextStreamChunk() ([]byte, error) {
 			return nil, chunkErr
 		}
 		req.MicData = append(req.MicData, chunk.InputAudio...)
-		req.DecodedMicData = append(req.DecodedMicData, req.OpusDecode(chunk.InputAudio)...)
-		req.FilteredMicData = append(req.FilteredMicData, req.Aproc.ProcessAudio(req.OpusDecode(chunk.InputAudio))...)
+		decodedChunk := req.OpusDecode(chunk.InputAudio)
+		req.DecodedMicData = append(req.DecodedMicData, decodedChunk...)
 		dataReturn := req.DecodedMicData[req.PrevLen:]
-		req.LastAudioChunk = req.FilteredMicData[req.PrevLen:]
+		req.LastAudioChunk = req.DecodedMicData[req.PrevLen:]
 		req.PrevLen = len(req.DecodedMicData)
 		return dataReturn, nil
 	} else if str, ok := req.Stream.(pb.ChipperGrpc_StreamingIntentGraphServer); ok {
@@ -258,10 +266,10 @@ func (req *SpeechRequest) GetNextStreamChunk() ([]byte, error) {
 			return nil, chunkErr
 		}
 		req.MicData = append(req.MicData, chunk.InputAudio...)
-		req.DecodedMicData = append(req.DecodedMicData, req.OpusDecode(chunk.InputAudio)...)
-		req.FilteredMicData = append(req.FilteredMicData, req.Aproc.ProcessAudio(req.OpusDecode(chunk.InputAudio))...)
+		decodedChunk := req.OpusDecode(chunk.InputAudio)
+		req.DecodedMicData = append(req.DecodedMicData, decodedChunk...)
 		dataReturn := req.DecodedMicData[req.PrevLen:]
-		req.LastAudioChunk = req.FilteredMicData[req.PrevLen:]
+		req.LastAudioChunk = req.DecodedMicData[req.PrevLen:]
 		req.PrevLen = len(req.DecodedMicData)
 		if debugWriteFile {
 			debugFile.Write(chunk.InputAudio)
@@ -275,10 +283,10 @@ func (req *SpeechRequest) GetNextStreamChunk() ([]byte, error) {
 			return nil, chunkErr
 		}
 		req.MicData = append(req.MicData, chunk.InputAudio...)
-		req.DecodedMicData = append(req.DecodedMicData, req.OpusDecode(chunk.InputAudio)...)
-		req.FilteredMicData = append(req.FilteredMicData, req.Aproc.ProcessAudio(req.OpusDecode(chunk.InputAudio))...)
+		decodedChunk := req.OpusDecode(chunk.InputAudio)
+		req.DecodedMicData = append(req.DecodedMicData, decodedChunk...)
 		dataReturn := req.DecodedMicData[req.PrevLen:]
-		req.LastAudioChunk = req.FilteredMicData[req.PrevLen:]
+		req.LastAudioChunk = req.DecodedMicData[req.PrevLen:]
 		req.PrevLen = len(req.DecodedMicData)
 		return dataReturn, nil
 	}

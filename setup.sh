@@ -100,12 +100,30 @@ function setupVosk() {
     cd ../..
 }
 
+function downloadONNX() {
+    if [[ ! -f silero/libonnxruntime.so ]]; then
+        onnxVersion="1.25.1"
+        onnxArch=""
+        if [[ $(uname -m) == "x86_64" ]]; then
+            onnxArch="x64"
+        elif [[ $(uname -m) == "aarch64" ]]; then
+            onnxArch="arm64"
+        fi
+        cd silero
+        wget https://github.com/microsoft/onnxruntime/releases/download/v${onnxVersion}/onnxruntime-linux-${onnxArch}-${onnxVersion}.tgz
+        tar -zxvf onnxruntime-linux-${onnxArch}-${onnxVersion}.tgz
+        cp onnxruntime-linux-${onnxArch}-${onnxVersion}/lib/libonnxruntime.so.${onnxVersion} libonnxruntime.so
+        rm -rf onnxruntime-linux-${onnxArch}-${onnxVersion}*
+        cd ..
+    fi
+}
+
 function setupWhisper() {
     if [[ ! -d whisper.cpp ]]; then
         mkdir whisper.cpp
         cd whisper.cpp
-        git clone https://github.com/ggerganov/whisper.cpp.git .
-        git checkout 7fd6fa809749078aa00edf945e959c898f2bd1af
+        git clone https://github.com/ggml-org/whisper.cpp.git .
+        git checkout 968eebe77225d25e57a3f981da7c696310f0e881
     else
         cd whisper.cpp
     fi
@@ -120,7 +138,7 @@ function setupWhisper() {
     fi
     cmake -B build_go \
     -DCMAKE_POSITION_INDEPENDENT_CODE=ON ${EXTRA_ARGS}
-    cmake --build build_go -j --config Release
+    cmake --build build_go -j8 --config Release
     cd ..
 }
 
@@ -144,7 +162,10 @@ function detectCUDA() {
 function buildCavalier() {
     export CGO_ENABLED=1
     if [[ $sttService == "whisper" ]]; then
-        export CGO_LDFLAGS="-L$(pwd)/whisper.cpp -L$(pwd)/whisper.cpp/build -L$(pwd)/whisper.cpp/build/src -L$(pwd)/whisper.cpp/build_go/ggml/src -L$(pwd)/whisper.cpp/build_go/src"
+        export CGO_LDFLAGS="-L$(pwd)/whisper.cpp -L$(pwd)/whisper.cpp/build -L$(pwd)/whisper.cpp/build/src -L$(pwd)/whisper.cpp/build_go/ggml/src -L$(pwd)/whisper.cpp/build_go/src -L$(pwd)/whisper.cpp/build_go/ggml/src/ggml-cuda"
+        if [[ ${compileCuda} == 1 ]]; then
+            export CGO_LDFLAGS="${CGO_LDFLAGS} -lggml-cuda"
+        fi
         export CGO_CFLAGS="-I$(pwd)/whisper.cpp -I$(pwd)/whisper.cpp/include -I$(pwd)/whisper.cpp/ggml/include"
     else
         export CGO_CFLAGS="-I$(pwd)/vosklib"
@@ -164,4 +185,5 @@ else
     whichWhisperModel
     setupWhisper
 fi
+downloadONNX
 buildCavalier

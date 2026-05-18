@@ -11,3 +11,4 @@ cavalier
 whisper
 whisper.cpp
 blacklist.json
+silero/*.so
