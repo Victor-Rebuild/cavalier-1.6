@@ -9,7 +9,6 @@ import (
 	"os"
 	"time"
 
-	"cavalier/pkg/audioproc"
 	"cavalier/pkg/vtt"
 
 	pb "github.com/digital-dream-labs/api/go/chipperpb"
@@ -26,23 +25,21 @@ var debugFile *os.File
 var sileroModel *vad.Model
 
 type SpeechRequest struct {
-	Device          string
-	Session         string
-	FirstReq        []byte
-	Stream          interface{}
-	IsKG            bool
-	IsIG            bool
-	MicData         []byte
-	DecodedMicData  []byte
-	FilteredMicData []byte
-	Aproc           *audioproc.AudioProcessor
-	PrevLen         int
-	PrevLenRaw      int
-	SileroVADInst   *vad.Detector
-	SileroDone      bool
-	LastAudioChunk  []byte
-	IsOpus          bool
-	OpusStream      *opus.OggStream
+	Device         string
+	Session        string
+	FirstReq       []byte
+	Stream         interface{}
+	IsKG           bool
+	IsIG           bool
+	MicData        []byte
+	DecodedMicData []byte
+	PrevLen        int
+	PrevLenRaw     int
+	SileroVADInst  *vad.Detector
+	SileroDone     bool
+	LastAudioChunk []byte
+	IsOpus         bool
+	OpusStream     *opus.OggStream
 }
 
 func BytesToSamples(buf []byte) []int16 {
@@ -202,14 +199,6 @@ func ReqToSpeechRequest(req interface{}) SpeechRequest {
 	}
 	var request SpeechRequest
 	request.PrevLen = 0
-	var err error
-	request.Aproc, err = audioproc.NewAudioProcessor(16000, 550, 2)
-	if err != nil {
-		fmt.Println(err)
-	}
-	if err != nil {
-		fmt.Println(err)
-	}
 	if str, ok := req.(*vtt.IntentRequest); ok {
 		var req1 *vtt.IntentRequest = str
 		request.Device = req1.Device
@@ -243,10 +232,9 @@ func ReqToSpeechRequest(req interface{}) SpeechRequest {
 	if isOpus {
 		request.OpusStream = &opus.OggStream{}
 		decodedFirstReq, _ := request.OpusStream.Decode(request.FirstReq)
-		request.FirstReq = request.Aproc.ProcessAudio(decodedFirstReq)
-		request.FilteredMicData = append(request.FilteredMicData, request.FirstReq...)
+		request.FirstReq = decodedFirstReq
 		request.DecodedMicData = append(request.DecodedMicData, decodedFirstReq...)
-		request.LastAudioChunk = request.FilteredMicData[request.PrevLen:]
+		request.LastAudioChunk = request.DecodedMicData[request.PrevLen:]
 		request.PrevLen = len(request.DecodedMicData)
 		request.IsOpus = true
 	}
@@ -266,7 +254,6 @@ func (req *SpeechRequest) GetNextStreamChunk() ([]byte, error) {
 		req.MicData = append(req.MicData, chunk.InputAudio...)
 		decodedChunk := req.OpusDecode(chunk.InputAudio)
 		req.DecodedMicData = append(req.DecodedMicData, decodedChunk...)
-		req.FilteredMicData = append(req.FilteredMicData, req.Aproc.ProcessAudio(decodedChunk)...)
 		dataReturn := req.DecodedMicData[req.PrevLen:]
 		req.LastAudioChunk = req.DecodedMicData[req.PrevLen:]
 		req.PrevLen = len(req.DecodedMicData)
@@ -281,7 +268,6 @@ func (req *SpeechRequest) GetNextStreamChunk() ([]byte, error) {
 		req.MicData = append(req.MicData, chunk.InputAudio...)
 		decodedChunk := req.OpusDecode(chunk.InputAudio)
 		req.DecodedMicData = append(req.DecodedMicData, decodedChunk...)
-		req.FilteredMicData = append(req.FilteredMicData, req.Aproc.ProcessAudio(decodedChunk)...)
 		dataReturn := req.DecodedMicData[req.PrevLen:]
 		req.LastAudioChunk = req.DecodedMicData[req.PrevLen:]
 		req.PrevLen = len(req.DecodedMicData)
@@ -299,7 +285,6 @@ func (req *SpeechRequest) GetNextStreamChunk() ([]byte, error) {
 		req.MicData = append(req.MicData, chunk.InputAudio...)
 		decodedChunk := req.OpusDecode(chunk.InputAudio)
 		req.DecodedMicData = append(req.DecodedMicData, decodedChunk...)
-		req.FilteredMicData = append(req.FilteredMicData, req.Aproc.ProcessAudio(decodedChunk)...)
 		dataReturn := req.DecodedMicData[req.PrevLen:]
 		req.LastAudioChunk = req.DecodedMicData[req.PrevLen:]
 		req.PrevLen = len(req.DecodedMicData)
