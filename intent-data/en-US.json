@@ -76,12 +76,12 @@
 	},
 	{	
 		"name": "intent_amazon_signin", 
-		"keyphrases" : ["in intellect", "fine in electa", "in alex", "ing alex", "in an elect", "to alex", "in angelica", "up alexa", "sign in to alexa" ],
+		"keyphrases" : ["in intellect", "fine in electa", "in alex", "ing alex", "in an elect", "to alex", "in angelica", "up alexa", "sign in to alexa", "sign in" ],
 		"requiresexact": false
 	},
 	{	
-		"name": "intent_amazon_signin", 
-		"keyphrases" : ["in outlet", "i now of elea", "out alexa", "out of ale" ],
+		"name": "intent_amazon_signout", 
+		"keyphrases" : ["in outlet", "i now of elea", "out alexa", "out of ale", "sign out alexa", "sign out" ],
 		"requiresexact": false
 	},
 	{	
@@ -276,7 +276,7 @@
 	},
 	{	
 		"name": "intent_play_keepaway",
-		"keyphrases": ["keepaway", "keep away", "play keepaway" ],
+		"keyphrases": ["keepaway", "keep away", "play keepaway", "play keep away" ],
 		"requiresexact": false
 	},
 	{	
@@ -291,12 +291,22 @@
         },
         {       
                 "name": "intent_victor_shutdown", 
-                "keyphrases" : ["turn off", "power off", "shutdown", "deactivate", "I am satisfied with my care", "I'm satisfied with my care" ],
+                "keyphrases" : ["turn off", "power off", "shutdown", "deactivate"],
+                "requiresexact": false
+        },
+        {       
+                "name": "intent_victor_shutdown_satisfied", 
+                "keyphrases" : ["I am satisfied with my care", "I'm satisfied with my care" ],
                 "requiresexact": false
         },
         {       
                 "name": "intent_thank_you", 
                 "keyphrases" : ["thanks", "thank you" ],
+                "requiresexact": false
+        },
+        {       
+                "name": "intent_play_cubedrive", 
+                "keyphrases" : ["play cube drive", "play cubedrive", "cubedrive", "cube drive" ],
                 "requiresexact": false
         }
 ]
