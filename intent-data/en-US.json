@@ -191,7 +191,7 @@
 	},
 	{	
 		"name": "intent_imperative_come", 
-		"keyphrases" : ["come to me", "come here" ],
+		"keyphrases" : ["come to me", "come here", "i am here", "i'm here" ],
 		"requiresexact": false
 	},
 	{	
@@ -307,6 +307,26 @@
         {       
                 "name": "intent_play_cubedrive", 
                 "keyphrases" : ["play cube drive", "play cubedrive", "cubedrive", "cube drive" ],
+                "requiresexact": false
+        },
+        {       
+                "name": "intent_play_rockPaperScissors", 
+                "keyphrases" : ["play rock paper scissors", "play rock, paper, scissors", "rock paper scissors", "rock, paper, scissors"],
+                "requiresexact": false
+        },
+        {       
+                "name": "intent_play_rockPaperScissorsRock", 
+                "keyphrases" : ["rock"],
+                "requiresexact": false
+        },
+        {       
+                "name": "intent_play_rockPaperScissorsPaper", 
+                "keyphrases" : ["paper"],
+                "requiresexact": false
+        },
+        {       
+                "name": "intent_play_rockPaperScissorsScissors", 
+                "keyphrases" : ["scissors", "scissor"],
                 "requiresexact": false
         }
 ]

@@ -22,6 +22,7 @@ const STR_EYE_COLOR_RAINBOW = "str_eye_color_rainbow"
 const STR_EYE_COLOR_REBUILD = "str_eye_color_rebuild"
 const STR_ME = "str_me"
 const STR_SELF = "str_self"
+const STR_US = "str_us"
 const STR_VOLUME_LOW = "str_volume_low"
 const STR_VOLUME_QUIET = "str_volume_quiet"
 const STR_VOLUME_MEDIUM_LOW = "str_volume_medium_low"
@@ -93,6 +94,7 @@ var ALL_STR []string = []string{
 	"str_eye_color_orange",
 	"str_me",
 	"str_self",
+	"str_us",
 	"str_volume_low",
 	"str_volume_quiet",
 	"str_volume_medium_low",
@@ -169,6 +171,7 @@ var texts = map[string][]string{
 	STR_EYE_COLOR_REBUILD:              {"cross media bar", "cross media bar", "cross media bar", "cross media bar", "cross media bar", "cross media bar", "cross media bar", "cross media bar", "cross media bar", "cross media bar", "cross media bar", "cross media bar", "cross media bar"},
 	STR_ME:                             {"me", "me", "me", "moi", "mir", "mnie", "我", "ben", "меня", "mij", "мене", "tôi", "나", "내"},
 	STR_SELF:                           {"self", "mi", "mía", "moi", "mein", "ja", "自己", "kendim", "себя", "zelf", "себе", "bản thân", "본인", "자신"},
+	STR_US:                             {"us", "mi", "mía", "moi", "mein", "ja", "自己", "kendim", "себя", "zelf", "себе", "bản thân", "본인", "자신"},
 	STR_VOLUME_LOW:                     {"low", "minimo", "bajo", "bas", "niedrig", "niski", "低", "düşük", "низкий", "laag", "на мінімум", "thấp", "아주 작게"},
 	STR_VOLUME_QUIET:                   {"quiet", "basso", "tranquilo", "silencieux", "ruhig", "cichy", "安静", "sessiz", "тихо", "rustig", "тихо", "yên tĩnh", "작게"},
 	STR_VOLUME_MEDIUM_LOW:              {"medium low", "medio basso", "medio-bajo", "moyen bas", "mittelschwer", "średnio niski", "中低", "orta düşük", "ниже среднего", "middel laag", "нижче середнього", "vừa thấp", "조금 작게"},

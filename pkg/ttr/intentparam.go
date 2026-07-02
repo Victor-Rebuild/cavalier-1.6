@@ -105,7 +105,7 @@ func ParamChecker(req interface{}, intent string, speechText string, botSerial s
 	if strings.Contains(intent, "intent_photo_take_extend") {
 		isParam = true
 		newIntent = intent
-		if strings.Contains(speechText, lcztn.GetText(lcztn.STR_ME)) || strings.Contains(speechText, lcztn.GetText(lcztn.STR_SELF)) {
+		if strings.Contains(speechText, lcztn.GetText(lcztn.STR_ME)) || strings.Contains(speechText, lcztn.GetText(lcztn.STR_SELF)) || strings.Contains(speechText, lcztn.GetText(lcztn.STR_US)) {
 			intentParam = "entity_photo_selfie"
 			intentParamValue = "photo_selfie"
 		} else {
@@ -519,7 +519,7 @@ func prehistoricParamChecker(req interface{}, intent string, speechText string) 
 	if strings.Contains(intent, "intent_photo_take_extend") {
 		isParam = true
 		newIntent = intent
-		if strings.Contains(speechText, lcztn.GetText(lcztn.STR_ME)) || strings.Contains(speechText, lcztn.GetText(lcztn.STR_SELF)) {
+		if strings.Contains(speechText, lcztn.GetText(lcztn.STR_ME)) || strings.Contains(speechText, lcztn.GetText(lcztn.STR_SELF)) || strings.Contains(speechText, lcztn.GetText(lcztn.STR_US)) {
 			intentParam = "entity_photo_selfie"
 			intentParamValue = "photo_selfie"
 		} else {
