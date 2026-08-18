@@ -18,4 +18,8 @@ if [[ ! -f cavalier ]]; then
     exit 1
 fi
 
-DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$(pwd)/vosklib:$(pwd)/whisper.cpp/build_go/src:$(pwd)/whisper.cpp/build_go/ggml/src:$(pwd)/whisper.cpp/build_go/ggml/src/ggml-cuda ./cavalier
+if [[ "$(uname -a)" == *"Darwin"* ]]; then
+    DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$(pwd)/vosklib:$(pwd)/whisper.cpp/build_go/src:$(pwd)/whisper.cpp/build_go/ggml/src:$(pwd)/whisper.cpp/build_go/ggml/src/ggml-cuda ./cavalier
+else
+    LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/vosklib:$(pwd)/whisper.cpp/build_go/src:$(pwd)/whisper.cpp/build_go/ggml/src:$(pwd)/whisper.cpp/build_go/ggml/src/ggml-cuda ./cavalier
+fi
