@@ -12,3 +12,4 @@ whisper
 whisper.cpp
 blacklist.json
 silero/*.so
+silero/*.dylib

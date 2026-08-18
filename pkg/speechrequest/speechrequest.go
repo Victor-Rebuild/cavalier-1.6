@@ -108,8 +108,11 @@ func BytesToIntVAD(stream opus.OggStream, data []byte, die bool, isOpus bool) []
 func init() {
 	err := onnx.Init("./silero/libonnxruntime.so")
 	if err != nil {
-		println("couldn't load onnx:", err)
-		os.Exit(1)
+		err := onnx.Init("./silero/libonnxruntime.dylib")
+		if err != nil {
+			println("couldn't load onnx:", err)
+			os.Exit(1)
+		}
 	}
 	sileroModel, err = vad.NewModel(16000, "./silero/silero_vad.onnx")
 	if err != nil {

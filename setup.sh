@@ -10,6 +10,17 @@ if [[ ! -d cmd ]]; then
 	exit 1
 fi
 
+
+function macDeps() {
+    echo
+    if [[ "$(uname -a)" == *"Darwin"* ]]; then
+        echo "Installing macOS deps"
+        brew install python@3.11 cmake libopusenc llvm libomp pkg-config
+    else
+        echo "Not using macOS"
+    fi
+}
+
 function sttServicePrompt() {
     echo
     echo "Which speech-to-text service would you like to use?"
@@ -104,16 +115,24 @@ function downloadONNX() {
     if [[ ! -f silero/libonnxruntime.so ]]; then
         onnxVersion="1.25.1"
         onnxArch=""
+        onnxOS="linux"
         if [[ $(uname -m) == "x86_64" ]]; then
             onnxArch="x64"
-        elif [[ $(uname -m) == "aarch64" ]]; then
+        elif [[ $(uname -m) == "aarch64" || $(uname -m) == "arm64" ]]; then
             onnxArch="arm64"
         fi
+        if [[ "$(uname -a)" == *"Darwin"* ]]; then
+            onnxOS="osx"
+        fi
         cd silero
-        wget https://github.com/microsoft/onnxruntime/releases/download/v${onnxVersion}/onnxruntime-linux-${onnxArch}-${onnxVersion}.tgz
-        tar -zxvf onnxruntime-linux-${onnxArch}-${onnxVersion}.tgz
-        cp onnxruntime-linux-${onnxArch}-${onnxVersion}/lib/libonnxruntime.so.${onnxVersion} libonnxruntime.so
-        rm -rf onnxruntime-linux-${onnxArch}-${onnxVersion}*
+        wget https://github.com/microsoft/onnxruntime/releases/download/v${onnxVersion}/onnxruntime-${onnxOS}-${onnxArch}-${onnxVersion}.tgz
+        tar -zxvf onnxruntime-${onnxOS}-${onnxArch}-${onnxVersion}.tgz
+        if [[ "$(uname -a)" == *"Darwin"* ]]; then
+            cp onnxruntime-${onnxOS}-${onnxArch}-${onnxVersion}/lib/libonnxruntime.${onnxVersion}.dylib libonnxruntime.dylib
+        else
+            cp onnxruntime-${onnxOS}-${onnxArch}-${onnxVersion}/lib/libonnxruntime.so.${onnxVersion} libonnxruntime.so
+        fi
+        rm -rf onnxruntime-${onnxOS}-${onnxArch}-${onnxVersion}*
         cd ..
     fi
 }
@@ -132,6 +151,9 @@ function setupWhisper() {
     cp models/ggml-$whispermodel.bin ../whisper/ggml.bin
     rm -rf build_go
     EXTRA_ARGS=0
+    if [[ "$(uname -a)" == *"arm64"* && "$(uname -a)" == *"Darwin"* ]]; then
+        EXTRA_ARGS='-DWHISPER_COREML=1'
+    fi
     if [[ ${compileCuda} == 1 ]]; then
         PATH=$PATH:/usr/local/cuda/bin
         EXTRA_ARGS='-DGGML_CUDA=1'
@@ -139,6 +161,14 @@ function setupWhisper() {
     cmake -B build_go \
     -DCMAKE_POSITION_INDEPENDENT_CODE=ON ${EXTRA_ARGS}
     cmake --build build_go -j8 --config Release
+    if [[ "$(uname -a)" == *"arm64"* && "$(uname -a)" == *"Darwin"* ]]; then
+        python3.11 -m venv coreml-env
+        source coreml-env/bin/activate
+        pip install torch openai-whisper coremltools ane_transformers
+        ./models/generate-coreml-model.sh $whispermodel
+        cp -R models/ggml-tiny-encoder.mlmodelc ../whisper/ggml-encoder.mlmodelc
+        deactivate
+    fi
     cd ..
 }
 
@@ -167,6 +197,10 @@ function buildCavalier() {
             export CGO_LDFLAGS="${CGO_LDFLAGS} -lggml-cuda"
         fi
         export CGO_CFLAGS="-I$(pwd)/whisper.cpp -I$(pwd)/whisper.cpp/include -I$(pwd)/whisper.cpp/ggml/include"
+        if [[ "$(uname -a)" == *"Darwin"* ]]; then
+            export CC=/opt/homebrew/opt/llvm/bin/clang
+            export CXX=/opt/homebrew/opt/llvm/bin/clang++
+        fi
     else
         export CGO_CFLAGS="-I$(pwd)/vosklib"
         export CGO_LDFLAGS="-L$(pwd)/vosklib -lvosk -ldl -lpthread"
@@ -176,6 +210,7 @@ function buildCavalier() {
     echo "cavalier has been compiled."
 }
 
+macDeps
 sttServicePrompt
 if [[ ${sttService} == "vosk" ]]; then
     voskModelPrompt
