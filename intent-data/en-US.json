@@ -328,5 +328,10 @@
                 "name": "intent_play_rockPaperScissorsScissors", 
                 "keyphrases" : ["scissors", "scissor"],
                 "requiresexact": false
+        },
+        {       
+                "name": "intent_snake_victor_score", 
+                "keyphrases" : ["snake high score", "snake score"],
+                "requiresexact": false
         }
 ]
