@@ -166,7 +166,7 @@ function setupWhisper() {
         source coreml-env/bin/activate
         pip install torch openai-whisper coremltools ane_transformers
         ./models/generate-coreml-model.sh $whispermodel
-        cp -R models/ggml-tiny-encoder.mlmodelc ../whisper/ggml-encoder.mlmodelc
+        cp -R models/ggml-$whispermodel-encoder.mlmodelc ../whisper/ggml-encoder.mlmodelc
         deactivate
     fi
     cd ..
