@@ -281,7 +281,7 @@
 	},
 	{	
 		"name": "intent_knowledge_response_date_igraph", 
-		"keyphrases" : ["date is it", "the date", "what date", "date", "what date is it", "day", "what day", "day is it", "the day" ],
+		"keyphrases" : ["date is it", "the date", "what date", "date", "what date is it", "what day", "day is it", "the day" ],
 		"requiresexact": false
 	},
         {       
