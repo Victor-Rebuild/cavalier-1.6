@@ -57,7 +57,7 @@ var NoResultSpoken string
 
 func houndifyKG(req sr.SpeechRequest) string {
 	var apiResponse string
-	if vars.APIConfig.Knowledge.Enable && vars.APIConfig.Knowledge.Provider == "houndify" {
+	if vars.APIConfig.Knowledge.Enable && vars.APIConfig.Knowledge.Provider == "houndify" && !vars.IsESNKGDisabled(req.Device) {
 		fmt.Println("Sending request to Houndify...")
 		serverResponse := StreamAudioToHoundify(req, HKGclient)
 		apiResponse, _ = ParseSpokenResponse(serverResponse)

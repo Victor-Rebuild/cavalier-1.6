@@ -11,5 +11,7 @@ cavalier
 whisper
 whisper.cpp
 blacklist.json
+igdisable.json
+kgdisable.json
 silero/*.so
 silero/*.dylib

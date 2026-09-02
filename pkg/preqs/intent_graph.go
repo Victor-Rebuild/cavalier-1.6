@@ -76,7 +76,7 @@ func (s *Server) ProcessIntentGraph(req *vtt.IntentGraphRequest) (*vtt.IntentGra
 	}
 	if !successMatched {
 		// If knowledge graph is enabled, send to Houndify
-		if vars.APIConfig.Knowledge.Enable {
+		if vars.APIConfig.Knowledge.Enable && !vars.IsESNIGDisabled(req.Device) {
 			if len([]rune(transcribedText)) >= 8 && !strings.Contains(transcribedText, "**") {
 				fmt.Println("No intent matched, forwarding to Houndify for device " + req.Device + "...")
 				InitKnowledge() // Errors without this for whatever reason even though I think it should be inited already
@@ -86,17 +86,14 @@ func (s *Server) ProcessIntentGraph(req *vtt.IntentGraphRequest) (*vtt.IntentGra
 				houndifyDuration := time.Since(houndifyStartTime)
 				fmt.Printf("Bot %s - Houndify request took: %v\n", req.Device, houndifyDuration)
 
-				if apiResponse != "" && !strings.Contains(apiResponse, "not enabled") && !strings.Contains(apiResponse, "Knowledge graph is not enabled") && !strings.Contains(apiResponse, "Didn't get that!") {
+				if !strings.Contains(apiResponse, "not enabled") && !strings.Contains(apiResponse, "Knowledge graph is not enabled") && !strings.Contains(apiResponse, "Didn't get that!") {
 					if apiResponse == "" {
 						fmt.Println("Houndify intent graph returned error/empty, cancelling response")
 						ttr.KnowledgeGraphResponseIG(req, cantProcessIntent, transcribedText)
-						totalDuration := time.Since(requestStartTime)
-						fmt.Printf("Bot %s - Total request time: %v\n", req.Device, totalDuration)
-						fmt.Println("Bot " + speechReq.Device + " request served via Houndify.")
-						return nil, nil
+					} else {
+						ttr.KnowledgeGraphResponseIG(req, apiResponse, transcribedText)
 					}
 
-					ttr.KnowledgeGraphResponseIG(req, apiResponse, transcribedText)
 					totalDuration := time.Since(requestStartTime)
 					fmt.Printf("Bot %s - Total request time: %v\n", req.Device, totalDuration)
 					fmt.Println("Bot " + speechReq.Device + " request served via Houndify.")

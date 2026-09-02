@@ -63,6 +63,14 @@ type apiConfig struct {
 		EnableStealth bool     `json:"enableStealth"`
 		ESNs          []string `json:"esns"`
 	} `json:"blacklist"`
+	KGDisable struct {
+		Enable bool     `json:"enable"`
+		ESNs   []string `json:"esns"`
+	} `json:"KGDisable"`
+	IGDisable struct {
+		Enable bool     `json:"enable"`
+		ESNs   []string `json:"esns"`
+	} `json:"IGDisable"`
 	HasReadFromEnv   bool `json:"hasreadfromenv"`
 	PastInitialSetup bool `json:"pastinitialsetup"`
 }
@@ -103,6 +111,46 @@ func UseStealthBlacklist() bool {
 	}
 
 	return true
+}
+
+func IsESNIGDisabled(esn string) bool {
+	if !APIConfig.IGDisable.Enable {
+		return false
+	}
+
+	esn = strings.ToLower(strings.TrimSpace(esn))
+	esn = strings.TrimPrefix(esn, "vic:")
+
+	for _, igdisabledESN := range APIConfig.KGDisable.ESNs {
+		igdisabledESN = strings.ToLower(strings.TrimSpace(igdisabledESN))
+		igdisabledESN = strings.TrimPrefix(igdisabledESN, "vic:")
+
+		if esn == igdisabledESN {
+			return true
+		}
+	}
+
+	return false
+}
+
+func IsESNKGDisabled(esn string) bool {
+	if !APIConfig.KGDisable.Enable {
+		return false
+	}
+
+	esn = strings.ToLower(strings.TrimSpace(esn))
+	esn = strings.TrimPrefix(esn, "vic:")
+
+	for _, kgdisabledESN := range APIConfig.KGDisable.ESNs {
+		kgdisabledESN = strings.ToLower(strings.TrimSpace(kgdisabledESN))
+		kgdisabledESN = strings.TrimPrefix(kgdisabledESN, "vic:")
+
+		if esn == kgdisabledESN {
+			return true
+		}
+	}
+
+	return false
 }
 
 func LoadIntents() ([]JsonIntent, error) {
@@ -147,7 +195,9 @@ func Init() {
 	CertPath = os.Getenv("CERT")
 	os.MkdirAll(SessionCertsStorage, 0777)
 
-	LoadConfig()
+	LoadConfigBlacklist()
+	LoadConfigIGDisable()
+	LoadConfigKGDisable()
 
 	APIConfig.STT.Language = "en-US"
 	APIConfig.STT.Service = "vosk"
@@ -160,7 +210,7 @@ func Init() {
 	APIConfig.Weather.Provider = "weatherapi.com"
 }
 
-func LoadConfig() {
+func LoadConfigBlacklist() {
 	configPath := "./blacklist.json"
 	if _, err := os.Stat(configPath); err == nil {
 		data, err := os.ReadFile(configPath)
@@ -178,6 +228,50 @@ func LoadConfig() {
 		fmt.Println("Loaded blacklist from blacklist.json")
 		if APIConfig.Blacklist.Enable {
 			fmt.Printf("Blacklist enabled with %d ESNs\n", len(APIConfig.Blacklist.ESNs))
+		}
+	}
+}
+
+func LoadConfigIGDisable() {
+	configPathIG := "./igdisable.json"
+	if _, err := os.Stat(configPathIG); err == nil {
+		data, err := os.ReadFile(configPathIG)
+		if err != nil {
+			fmt.Println("Failed to read intent graph disable file:", err)
+			return
+		}
+
+		err = json.Unmarshal(data, &APIConfig)
+		if err != nil {
+			fmt.Println("Failed to parse intent graph disable file:", err)
+			return
+		}
+
+		fmt.Println("Loaded intent graph disabled bots from igdisable.json")
+		if APIConfig.IGDisable.Enable {
+			fmt.Printf("Intent graph disable enabled with %d ESNs\n", len(APIConfig.IGDisable.ESNs))
+		}
+	}
+}
+
+func LoadConfigKGDisable() {
+	configPathIG := "./kgdisable.json"
+	if _, err := os.Stat(configPathIG); err == nil {
+		data, err := os.ReadFile(configPathIG)
+		if err != nil {
+			fmt.Println("Failed to read knowledge graph disable file:", err)
+			return
+		}
+
+		err = json.Unmarshal(data, &APIConfig)
+		if err != nil {
+			fmt.Println("Failed to parse knowledge graph disable file:", err)
+			return
+		}
+
+		fmt.Println("Loaded knowledge graph disabled bots from igdisable.json")
+		if APIConfig.KGDisable.Enable {
+			fmt.Printf("knowledge graph disable enabled with %d ESNs\n", len(APIConfig.KGDisable.ESNs))
 		}
 	}
 }
