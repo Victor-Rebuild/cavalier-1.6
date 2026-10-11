@@ -344,6 +344,10 @@
         "CladType": "Rain"
     }, 
     {
+        "APIValue": "Patchy rain nearby", 
+        "CladType": "Rain"
+    }, 
+    {
         "APIValue": "Patchy snow possible", 
         "CladType": "Snow"
     },
