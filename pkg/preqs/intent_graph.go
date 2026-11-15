@@ -86,7 +86,9 @@ func (s *Server) ProcessIntentGraph(req *vtt.IntentGraphRequest) (*vtt.IntentGra
 				houndifyDuration := time.Since(houndifyStartTime)
 				fmt.Printf("Bot %s - Houndify request took: %v\n", req.Device, houndifyDuration)
 
-				if !strings.Contains(apiResponse, "not enabled") && !strings.Contains(apiResponse, "Knowledge graph is not enabled") && !strings.Contains(apiResponse, "Didn't get that!") {
+				if !strings.Contains(apiResponse, "not enabled") &&
+					!strings.Contains(apiResponse, "Knowledge graph is not enabled") &&
+					!strings.Contains(apiResponse, "Didn't get that!") {
 					if apiResponse == "" {
 						fmt.Println("Houndify intent graph returned error/empty, cancelling response")
 						ttr.KnowledgeGraphResponseIG(req, cantProcessIntent, transcribedText)
@@ -96,7 +98,7 @@ func (s *Server) ProcessIntentGraph(req *vtt.IntentGraphRequest) (*vtt.IntentGra
 
 					totalDuration := time.Since(requestStartTime)
 					fmt.Printf("Bot %s - Total request time: %v\n", req.Device, totalDuration)
-					fmt.Println("Bot " + speechReq.Device + " request served via Houndify.")
+					fmt.Println("(IG) Bot " + speechReq.Device + " request served.")
 					return nil, nil
 				}
 				// If Houndify fails or returns nothing useful, fall through to unmatched
